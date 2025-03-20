@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片转PDF工具</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 预先加载必要的库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>图片转PDF工具</h1>
+        <div class="upload-area" id="uploadArea">
+            <p>拖放图片到这里或</p>
+            <label for="fileInput" class="upload-btn">选择文件</label>
+            <input type="file" id="fileInput" accept="image/*" multiple hidden>
+        </div>
+        
+        <div class="image-list" id="imageList">
+            <!-- 上传的图片预览将在这里显示 -->
+        </div>
+        
+        <div class="controls">
+            <button id="convertBtn" disabled>生成PDF</button>
+            <button id="clearBtn" disabled>清除所有</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ul>
+                <li>支持上传多张图片</li>
+                <li>可以拖拽图片调整顺序</li>
+                <li>生成的PDF将自动下载</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- 使用备用CDN作为后备方案 -->
+    <script>
+        // 检查jsPDF是否已加载
+        if (typeof window.jspdf === 'undefined') {
+            console.log('jsPDF未正确加载，尝试加载备用源');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
+            script.onload = function() {
+                console.log('备用jsPDF已加载');
+            };
+            script.onerror = function() {
+                console.error('无法加载jsPDF库');
+                alert('无法加载PDF生成组件，请检查网络连接后刷新页面。');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html> 
