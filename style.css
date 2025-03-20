@@ -2,183 +2,443 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+:root {
+    --primary-color: #00bcd4;
+    --primary-dark: #008ba3;
+    --secondary-color: #7c4dff;
+    --accent-color: #ff4081;
+    --dark-bg: #1a1a2e;
+    --darker-bg: #16213e;
+    --card-bg: #0f3460;
+    --text-color: #e7e7e7;
+    --text-secondary: #b3b3b3;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+    --error-color: #f44336;
 }
 
 body {
-    background-color: #f5f5f5;
-    padding: 20px;
+    background: var(--dark-bg);
+    background-image: linear-gradient(to bottom right, var(--dark-bg), var(--darker-bg));
+    color: var(--text-color);
+    padding: 25px;
+    min-height: 100vh;
+    background-attachment: fixed;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
-    background: white;
+    background: var(--card-bg);
     padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(124, 77, 255, 0.1) 0%, rgba(15, 52, 96, 0) 70%);
+    z-index: 0;
 }
 
 h1 {
     text-align: center;
     margin-bottom: 30px;
-    color: #333;
+    color: var(--primary-color);
+    font-size: 2.2rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    position: relative;
+    text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+}
+
+h1::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    border-radius: 3px;
 }
 
 .upload-area {
-    border: 2px dashed #ddd;
-    border-radius: 8px;
-    padding: 40px;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 40px 20px;
     text-align: center;
-    margin-bottom: 20px;
-    transition: all 0.3s;
-    background-color: #fafafa;
+    margin-bottom: 25px;
+    transition: all 0.3s ease;
+    background-color: rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 188, 212, 0.05) 0%, rgba(124, 77, 255, 0.05) 100%);
+    pointer-events: none;
 }
 
 .upload-area.highlight {
-    border-color: #4CAF50;
-    background-color: rgba(76, 175, 80, 0.1);
+    border-color: var(--primary-color);
+    background-color: rgba(0, 188, 212, 0.1);
 }
 
 .upload-area p {
-    margin-bottom: 15px;
-    color: #666;
+    margin-bottom: 20px;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
 }
 
 .upload-btn {
     display: inline-block;
-    padding: 10px 20px;
-    background-color: #4CAF50;
+    padding: 12px 24px;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
     color: white;
-    border-radius: 4px;
+    border-radius: 30px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
 }
 
 .upload-btn:hover {
-    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 188, 212, 0.4);
 }
 
 .image-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     min-height: 50px;
+    position: relative;
 }
 
 .image-item {
     position: relative;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
     overflow: hidden;
     cursor: move;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.image-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
 .image-item img {
     width: 100%;
-    height: 150px;
+    height: 160px;
     object-fit: cover;
     display: block;
+    transition: transform 0.3s ease;
 }
 
 .image-item .remove-btn {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(255, 0, 0, 0.7);
+    top: 8px;
+    right: 8px;
+    background: rgba(244, 67, 54, 0.85);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 14px;
-    line-height: 1;
+    width: 28px;
+    height: 28px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.image-item .remove-btn .material-icons {
+    font-size: 18px;
+    margin: 0;
+}
+
+.image-item:hover .remove-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.image-item .remove-btn:hover {
+    background: rgba(244, 67, 54, 1);
+    transform: scale(1.1);
+}
+
+/* 图片旋转控制按钮样式 */
+.image-item .rotate-controls {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.2s;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 0;
+    z-index: 5;
+    transform: translateY(5px);
+    backdrop-filter: blur(3px);
+}
+
+.image-item:hover .rotate-controls {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.rotate-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    min-width: 45px;
+    height: 30px;
+    margin: 0 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    backdrop-filter: blur(5px);
+    padding: 0 12px;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.rotate-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.1);
+}
+
+.rotate-btn.left {
+    background: rgba(33, 150, 243, 0.25);
+    color: #ffffff;
+    border: 2px solid #2196F3;
+    text-shadow: 0 0 10px rgba(33, 150, 243, 0.8);
+}
+
+.rotate-btn.right {
+    background: rgba(156, 39, 176, 0.25);
+    color: #ffffff;
+    border: 2px solid #9C27B0;
+    text-shadow: 0 0 10px rgba(156, 39, 176, 0.8);
+}
+
+.rotate-btn.left:hover {
+    background: rgba(33, 150, 243, 0.4);
+}
+
+.rotate-btn.right:hover {
+    background: rgba(156, 39, 176, 0.4);
+}
+
+/* 图片选中状态样式 */
+.image-item.selected {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 5px 15px rgba(0, 188, 212, 0.4);
+}
+
+.image-item.selected::before {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 24px;
+    height: 24px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .controls {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
 }
 
 .controls button {
     flex: 1;
-    padding: 12px;
+    min-width: 120px;
+    padding: 14px;
     border: none;
-    border-radius: 4px;
+    border-radius: 30px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 600;
     transition: all 0.3s;
-    opacity: 1;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.controls button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.controls button:hover::before {
+    transform: translateX(100%);
+}
+
+#selectAllBtn {
+    background: linear-gradient(to right, #546e7a, #78909c);
+    color: white;
+    box-shadow: 0 4px 10px rgba(84, 110, 122, 0.3);
+}
+
+#selectAllBtn:hover:not(:disabled) {
+    background: linear-gradient(to right, #455a64, #607d8b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(84, 110, 122, 0.4);
+}
+
+#deleteSelectedBtn {
+    background: linear-gradient(to right, #ff9800, #ff7043);
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+}
+
+#deleteSelectedBtn:hover:not(:disabled) {
+    background: linear-gradient(to right, #f57c00, #ff5722);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 152, 0, 0.4);
 }
 
 #convertBtn {
-    background-color: #2196F3;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
     color: white;
+    box-shadow: 0 4px 10px rgba(0, 188, 212, 0.3);
 }
 
 #convertBtn:hover:not(:disabled) {
-    background-color: #0b7dda;
-}
-
-#convertBtn:disabled {
-    background-color: #cccccc !important;
-    color: #999999 !important;
-    cursor: not-allowed !important;
-    opacity: 0.7;
-    pointer-events: none;
+    background: linear-gradient(to right, #00acc1, #673ab7);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 188, 212, 0.4);
 }
 
 #clearBtn {
-    background-color: #f44336;
+    background: linear-gradient(to right, #e53935, #d81b60);
     color: white;
+    box-shadow: 0 4px 10px rgba(229, 57, 53, 0.3);
 }
 
 #clearBtn:hover:not(:disabled) {
-    background-color: #d32f2f;
+    background: linear-gradient(to right, #d32f2f, #c2185b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(229, 57, 53, 0.4);
 }
 
-#clearBtn:disabled {
-    background-color: #cccccc !important;
-    color: #999999 !important;
+button:disabled {
+    background: #2a2a3a !important;
+    color: #555 !important;
     cursor: not-allowed !important;
     opacity: 0.7;
     pointer-events: none;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
-#convertBtn:not(:disabled), #clearBtn:not(:disabled) {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.controls button.hidden {
+    display: none;
 }
 
 .instructions {
-    margin-top: 30px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 5px;
+    margin-top: 35px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.instructions::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
 }
 
 .instructions h3 {
-    margin-bottom: 10px;
-    color: #333;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    font-weight: 500;
 }
 
 .instructions ul {
     padding-left: 20px;
-    color: #555;
+    color: var(--text-secondary);
 }
 
 .instructions li {
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    position: relative;
+    list-style-type: none;
+    padding-left: 5px;
+}
+
+.instructions li::before {
+    content: '•';
+    position: absolute;
+    left: -15px;
+    color: var(--primary-color);
 }
 
 .sortable-ghost {
     opacity: 0.5;
-    background-color: #c8ebfb;
+    background-color: rgba(0, 188, 212, 0.2);
 }
 
 .loading {
@@ -191,12 +451,12 @@ h1 {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
-    border: 2px solid rgba(255,255,255,0.3);
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
-    border-top-color: white;
+    border-top-color: var(--primary-color);
     animation: spin 0.8s linear infinite;
 }
 
@@ -204,13 +464,40 @@ h1 {
     to { transform: rotate(360deg); }
 }
 
-@media (max-width: 600px) {
+/* 动画效果 */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 188, 212, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 188, 212, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 188, 212, 0); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
     .container {
-        padding: 15px;
+        padding: 20px;
     }
     
     .upload-area {
-        padding: 20px;
+        padding: 30px 15px;
+    }
+    
+    .controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .controls button {
+        flex: none;
+        width: 100%;
+        padding: 12px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
     }
     
     .image-list {
@@ -219,5 +506,42 @@ h1 {
     
     .image-item img {
         height: 120px;
+    }
+}
+
+.upload-icon {
+    margin-bottom: 15px;
+}
+
+.upload-icon .material-icons {
+    font-size: 64px;
+    color: var(--primary-color);
+    opacity: 0.7;
+    animation: float 3s ease-in-out infinite;
+}
+
+.material-icons {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.footer {
+    margin-top: 30px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0px);
     }
 } 

@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能图片转PDF工具</title>
+    <title>图片转PDF工具</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- 预先加载必要的库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script>
         var _hmt = _hmt || [];
         (function() {
@@ -15,24 +16,15 @@
           var s = document.getElementsByTagName("script")[0]; 
           s.parentNode.insertBefore(hm, s);
         })();
-        </script>
+    </script>
         
-    <!-- 预先加载必要的库 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1><i class="material-icons">transform</i> 智能图片转PDF</h1>
+        <h1>图片转PDF工具</h1>
         <div class="upload-area" id="uploadArea">
-            <div class="upload-icon">
-                <i class="material-icons">cloud_upload</i>
-            </div>
             <p>拖放图片到这里或</p>
-            <label for="fileInput" class="upload-btn">
-                <i class="material-icons">add_photo_alternate</i>
-                选择文件
-            </label>
+            <label for="fileInput" class="upload-btn">选择文件</label>
             <input type="file" id="fileInput" accept="image/*" multiple hidden>
         </div>
         
@@ -41,38 +33,17 @@
         </div>
         
         <div class="controls">
-            <button id="selectAllBtn" class="hidden">
-                <i class="material-icons">select_all</i>
-                全选
-            </button>
-            <button id="deleteSelectedBtn" class="hidden">
-                <i class="material-icons">deselect</i>
-                取消所选
-            </button>
-            <button id="convertBtn" disabled>
-                <i class="material-icons">picture_as_pdf</i>
-                生成PDF
-            </button>
-            <button id="clearBtn" disabled>
-                <i class="material-icons">delete_sweep</i>
-                清除所有
-            </button>
+            <button id="convertBtn" disabled>生成PDF</button>
+            <button id="clearBtn" disabled>清除所有</button>
         </div>
         
         <div class="instructions">
-            <h3><i class="material-icons">help_outline</i> 使用说明</h3>
+            <h3>使用说明</h3>
             <ul>
                 <li>支持上传多张图片</li>
-                <li>支持旋转图片</li>
                 <li>可以拖拽图片调整顺序</li>
-                <li>点击图片可以选择要合并的图片</li>
-                <li>生成PDF时只会处理选中的图片（如果没有选中，则处理所有图片）</li>
                 <li>生成的PDF将自动下载</li>
             </ul>
-        </div>
-        
-        <div class="footer">
-            <p>©2024 智能图片工具 | 高效便捷的图片处理解决方案</p>
         </div>
     </div>
     
