@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能图片转PDF工具</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script>
@@ -37,17 +38,17 @@
         </div>
         
         <div class="image-list" id="imageList">
-            <!-- 上传的图片预览将在这里显�?-->
+            <!-- 上传的图片预览将在这里显示-->
         </div>
         
         <div class="controls">
             <button id="selectAllBtn" class="hidden">
                 <i class="material-icons">select_all</i>
-                全�?
+                全部
             </button>
             <button id="deleteSelectedBtn" class="hidden">
-                <i class="material-icons">deselect</i>
-                取消所�?
+                <i class="material-icons">delete</i>
+                删除所选
             </button>
             <button id="convertBtn" disabled>
                 <i class="material-icons">picture_as_pdf</i>
@@ -55,7 +56,7 @@
             </button>
             <button id="clearBtn" disabled>
                 <i class="material-icons">delete_sweep</i>
-                清除所�?
+                清除所有
             </button>
         </div>
         
@@ -67,28 +68,28 @@
                 <li>可以拖拽图片调整顺序</li>
                 <li>点击图片可以选择要合并的图片</li>
                 <li>生成PDF时只会处理选中的图片（如果没有选中，则处理所有图片）</li>
-                <li>生成的PDF将自动下�?/li>
+                <li>生成的PDF将自动下载</li>
             </ul>
         </div>
         
         <div class="footer">
-            <p>©2024 智能图片工具 | 高效便捷的图片处理解决方�?/p>
+            <p>©2024 智能图片工具 | 高效便捷的图片处理解决方案</p>
         </div>
     </div>
     
     <!-- 使用备用CDN作为后备方案 -->
     <script>
-        // 检查jsPDF是否已加�?
+        // 检查jsPDF是否已加载
         if (typeof window.jspdf === 'undefined') {
-            console.log('jsPDF未正确加载，尝试加载备用�?);
+            console.log('jsPDF未正确加载，尝试加载备用库');
             const script = document.createElement('script');
             script.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
             script.onload = function() {
-                console.log('备用jsPDF已加�?);
+                console.log('备用jsPDF已加载');
             };
             script.onerror = function() {
-                console.error('无法加载jsPDF�?);
-                alert('无法加载PDF生成组件，请检查网络连接后刷新页面�?);
+                console.error('无法加载jsPDF');
+                alert('无法加载PDF生成组件，请检查网络连接后刷新页面');
             };
             document.head.appendChild(script);
         }
