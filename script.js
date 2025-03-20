@@ -200,11 +200,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 imageItem.className = 'image-item';
                 imageItem.dataset.index = imageIndex;
                 
-                // 如果是第一张图片，则自动选中
-                if (imageIndex === 0 && document.querySelectorAll('.image-item').length === 0) {
-                    imageItem.classList.add('selected');
-                }
-                
                 // 创建图片元素
                 const imgEl = document.createElement('img');
                 imgEl.src = e.target.result;
