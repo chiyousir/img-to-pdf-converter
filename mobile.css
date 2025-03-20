@@ -1,1 +1,171 @@
- 
+/* 移动端适配样式 */
+
+/* 平板和手机设备 */
+@media (max-width: 768px) {
+    /* 移动端图片旋转控制按钮显示调整 */
+    .image-item .rotate-controls {
+        position: relative;
+        bottom: auto;
+        opacity: 1;
+        transform: translateY(0);
+        background: var(--card-bg);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 8px 0;
+        margin-top: 0;
+    }
+    
+    .image-item:hover .rotate-controls {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* 调整图片项目的高度，为按钮留出空间 */
+    .image-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .image-item img {
+        flex: 1;
+    }
+    
+    /* 其他移动端样式 */
+    .container {
+        padding: 20px;
+        margin: 10px;
+        width: auto;
+    }
+    
+    body {
+        padding: 10px;
+    }
+    
+    .upload-area {
+        padding: 30px 15px;
+    }
+    
+    .controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .controls button {
+        flex: none;
+        width: 100%;
+        padding: 12px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .image-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .image-item img {
+        height: 120px;
+    }
+    
+    .instructions {
+        padding: 15px;
+    }
+    
+    .instructions h3 {
+        font-size: 1.2rem;
+    }
+    
+    .instructions li {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+}
+
+/* 小屏幕手机设备 */
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+    }
+    
+    .container {
+        padding: 15px;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    
+    h1::after {
+        width: 60px;
+    }
+    
+    .upload-area {
+        padding: 20px 10px;
+        margin-bottom: 15px;
+    }
+    
+    .upload-icon .material-icons {
+        font-size: 48px;
+    }
+    
+    .image-list {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .image-item img {
+        height: 100px;
+    }
+    
+    .rotate-btn {
+        min-width: 40px;
+        height: 26px;
+        font-size: 12px;
+        padding: 0 8px;
+    }
+    
+    .image-item .rotate-controls {
+        padding: 5px 0;
+    }
+    
+    .image-item .remove-btn {
+        width: 24px;
+        height: 24px;
+        top: 5px;
+        right: 5px;
+    }
+    
+    .image-item .remove-btn .material-icons {
+        font-size: 16px;
+    }
+    
+    .upload-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .controls button {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+    
+    .instructions ul {
+        padding-left: 20px;
+    }
+    
+    .instructions li {
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+    }
+    
+    .footer {
+        margin-top: 20px;
+        padding-top: 15px;
+        font-size: 0.8rem;
+    }
+} 
