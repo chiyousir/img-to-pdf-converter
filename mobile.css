@@ -5,7 +5,7 @@
 
 /* 平板和手机设备 */
 @media (max-width: 768px) {
-    /* 移动端图片旋转控制按钮显示调整 */
+    /* 移动端图片项布局 */
     .image-item {
         position: relative;
         display: flex;
@@ -14,29 +14,17 @@
         margin-bottom: 5px;
     }
     
-    .image-item .rotate-controls {
-        position: relative !important;
-        bottom: auto !important;
-        left: auto !important;
-        right: auto !important;
-        opacity: 1 !important;
-        transform: translateY(0) !important;
-        background: var(--card-bg);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 8px 0;
-        margin-top: 0;
-        z-index: 5;
-    }
-    
-    .image-item:hover .rotate-controls {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    
     .image-item img {
         width: 100%;
         object-fit: cover;
         flex: 1;
+    }
+    
+    /* 旋转按钮样式优化 */
+    .rotate-btn {
+        min-width: 45px;
+        height: 28px;
+        font-size: 14px;
     }
     
     /* 其他移动端样式 */

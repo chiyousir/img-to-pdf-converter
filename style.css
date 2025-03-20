@@ -200,19 +200,18 @@ h1::after {
 
 /* 图片旋转控制按钮样式 */
 .image-item .rotate-controls {
-    position: absolute;
-    bottom: 8px;
-    left: 0;
-    right: 0;
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
     display: flex;
     justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s, transform 0.2s;
-    background: rgba(0, 0, 0, 0.6);
+    opacity: 1;
+    background: var(--card-bg);
     padding: 8px 0;
     z-index: 5;
-    transform: translateY(5px);
-    backdrop-filter: blur(3px);
+    transform: translateY(0);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .image-item:hover .rotate-controls {
