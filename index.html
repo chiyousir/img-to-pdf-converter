@@ -3,28 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能转换工具</title>
+    <title>vvChange智能转换工具</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
     <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script>
-        var _hmt = _hmt || [];
-        (function() {
-          var hm = document.createElement("script");
-          hm.src = "https://hm.baidu.com/hm.js?04fbfcd60712cf050a0a765c96e3b79c";
-          var s = document.getElementsByTagName("script")[0]; 
-          s.parentNode.insertBefore(hm, s);
-        })();
-        </script>
-        
+    <link rel="stylesheet" href="fonts/material-icons.css">
+    
     <!-- 预先加载必要的库 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script src="libs/jspdf.umd.min.js"></script>
+    <script src="libs/Sortable.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1><i class="material-icons">transform</i> vvchange-智能转换工具</h1>
+        <h1><i class="material-icons">transform</i> vvChange-智能转换工具</h1>
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">
                 <i class="material-icons">cloud_upload</i>
@@ -73,27 +64,9 @@
         </div>
         
         <div class="footer">
-            <p>©2025-vvchange 智能转换工具 | 高效便捷的文件处理解决方案</p>
+            <p>©2025-vvChange 智能转换工具 | 高效便捷的文件处理解决方案</p>
         </div>
     </div>
-    
-    <!-- 使用备用CDN作为后备方案 -->
-    <script>
-        // 检查jsPDF是否已加载
-        if (typeof window.jspdf === 'undefined') {
-            console.log('jsPDF未正确加载，尝试加载备用库');
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
-            script.onload = function() {
-                console.log('备用jsPDF已加载');
-            };
-            script.onerror = function() {
-                console.error('无法加载jsPDF');
-                alert('无法加载PDF生成组件，请检查网络连接后刷新页面');
-            };
-            document.head.appendChild(script);
-        }
-    </script>
     
     <script src="script.js"></script>
 </body>
