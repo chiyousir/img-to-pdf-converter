@@ -8,6 +8,15 @@
     <link rel="stylesheet" href="mobile.css">
     <!-- Material Icons -->
     <link rel="stylesheet" href="fonts/material-icons.css">
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?04fbfcd60712cf050a0a765c96e3b79c";
+          var s = document.getElementsByTagName("script")[0]; 
+          s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
     
     <!-- 预先加载必要的库 -->
     <script src="libs/jspdf.umd.min.js"></script>
@@ -67,6 +76,24 @@
             <p>©2025-vvChange 智能转换工具 | 高效便捷的文件处理解决方案</p>
         </div>
     </div>
+    
+    <!-- 使用备用CDN作为后备方案 -->
+    <script>
+        // 检查jsPDF是否已加载
+        if (typeof window.jspdf === 'undefined') {
+            console.log('jsPDF未正确加载，尝试加载备用库');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
+            script.onload = function() {
+                console.log('备用jsPDF已加载');
+            };
+            script.onerror = function() {
+                console.error('无法加载jsPDF');
+                alert('无法加载PDF生成组件，请检查网络连接后刷新页面');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
     
     <script src="script.js"></script>
 </body>
