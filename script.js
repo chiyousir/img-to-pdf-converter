@@ -133,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const imgEl = document.createElement('img');
                 imgEl.src = e.target.result;
                 imgEl.alt = file.name;
+                imageItem.appendChild(imgEl);
                 
                 // 创建删除按钮
                 const removeBtn = document.createElement('button');
@@ -158,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const rotateControls = document.createElement('div');
                 rotateControls.className = 'rotate-controls';
                 
-                // 创建左旋按钮
+                // 创建旋转按钮
                 const rotateLeftBtn = document.createElement('button');
                 rotateLeftBtn.className = 'rotate-btn left';
                 rotateLeftBtn.textContent = '左旋';
@@ -180,18 +181,34 @@ document.addEventListener('DOMContentLoaded', function() {
                     rotateImage(index, 90);
                 });
                 
-                // 添加旋转按钮到控制区域
                 rotateControls.appendChild(rotateLeftBtn);
                 rotateControls.appendChild(rotateRightBtn);
                 
-                // 添加所有元素到DOM
-                imageItem.appendChild(imgEl);
-                imageItem.appendChild(removeBtn);
+                // 添加旋转控制区域到图片项
                 imageItem.appendChild(rotateControls);
+                imageItem.appendChild(removeBtn);
+                
+                // 添加点击事件，选中图片
+                imageItem.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                    updateDeleteButtonState();
+                    
+                    // 更新选择全部按钮状态
+                    const totalItems = document.querySelectorAll('.image-item').length;
+                    const selectedItems = document.querySelectorAll('.image-item.selected').length;
+                    
+                    if (selectedItems === totalItems) {
+                        isSelectAll = true;
+                        selectAllBtn.textContent = '取消全选';
+                    } else {
+                        isSelectAll = false;
+                        selectAllBtn.textContent = '全选';
+                    }
+                });
+                
                 imageList.appendChild(imageItem);
                 
                 updateButtonState();
-                updateDeleteButtonState();
             };
         };
         

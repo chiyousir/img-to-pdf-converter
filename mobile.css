@@ -1,17 +1,31 @@
 /* 移动端适配样式 */
 
+/* 确保基本字符编码正确 */
+@charset "UTF-8";
+
 /* 平板和手机设备 */
 @media (max-width: 768px) {
     /* 移动端图片旋转控制按钮显示调整 */
-    .image-item .rotate-controls {
+    .image-item {
         position: relative;
-        bottom: auto;
-        opacity: 1;
-        transform: translateY(0);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        margin-bottom: 5px;
+    }
+    
+    .image-item .rotate-controls {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
         background: var(--card-bg);
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         padding: 8px 0;
         margin-top: 0;
+        z-index: 5;
     }
     
     .image-item:hover .rotate-controls {
@@ -19,13 +33,9 @@
         transform: translateY(0);
     }
     
-    /* 调整图片项目的高度，为按钮留出空间 */
-    .image-item {
-        display: flex;
-        flex-direction: column;
-    }
-    
     .image-item img {
+        width: 100%;
+        object-fit: cover;
         flex: 1;
     }
     
@@ -53,6 +63,7 @@
         flex: none;
         width: 100%;
         padding: 12px;
+        margin-bottom: 8px;
     }
     
     h1 {
