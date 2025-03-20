@@ -143,7 +143,7 @@ h1::after {
     border-radius: 8px;
     overflow: hidden;
     cursor: move;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.3s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     background: rgba(0, 0, 0, 0.3);
 }
@@ -270,6 +270,18 @@ h1::after {
 .image-item.selected {
     border: 2px solid var(--primary-color);
     box-shadow: 0 5px 15px rgba(0, 188, 212, 0.4);
+    transform: translateY(-3px);
+}
+
+.image-item.selected::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 188, 212, 0.1);
+    pointer-events: none;
 }
 
 .image-item.selected::before {
@@ -288,6 +300,18 @@ h1::after {
     font-size: 14px;
     z-index: 10;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .controls {
@@ -543,4 +567,66 @@ button:disabled {
     100% {
         transform: translateY(0px);
     }
+}
+
+/* Toast notifications */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.toast {
+    background: var(--primary-color);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease-out;
+    transition: opacity 0.3s ease-out;
+}
+
+.toast.warning {
+    background: #ff9800;
+}
+
+.toast.success {
+    background: #4caf50;
+}
+
+.toast.info {
+    background: #2196f3;
+}
+
+.toast.fade-out {
+    opacity: 0;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Recover button */
+.recover-btn {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background-color 0.3s;
+}
+
+.recover-btn:hover {
+    background: #45a049;
 } 

@@ -20,10 +20,57 @@ document.addEventListener('DOMContentLoaded', function() {
     selectAllBtn.classList.add('hidden');
     deleteSelectedBtn.classList.add('hidden');
     
-    // 存储上传的图片
+    // 存储上传的图片和已删除的图片
     const uploadedImages = [];
+    const deletedImages = new Map(); // 使用Map存储已删除的图片，键为图片hash，值为{file, timestamp}
     let isSelectAll = false;
     
+    // 创建提示元素
+    const toastContainer = document.createElement('div');
+    toastContainer.className = 'toast-container';
+    document.body.appendChild(toastContainer);
+
+    // 显示提示信息的函数
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        
+        // 3秒后自动消失
+        setTimeout(() => {
+            toast.classList.add('fade-out');
+            setTimeout(() => {
+                toastContainer.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+
+    // 计算文件的hash值（使用文件名和大小作为简单的hash）
+    function getFileHash(file) {
+        return `${file.name}-${file.size}`;
+    }
+
+    // 检查是否是已删除的图片
+    function isDeletedImage(file) {
+        const hash = getFileHash(file);
+        return deletedImages.has(hash);
+    }
+
+    // 创建恢复按钮
+    function createRecoverButton(file) {
+        const recoverBtn = document.createElement('button');
+        recoverBtn.className = 'recover-btn';
+        recoverBtn.textContent = '恢复此图片';
+        recoverBtn.onclick = () => {
+            const hash = getFileHash(file);
+            deletedImages.delete(hash);
+            addImageToList(file);
+            showToast('图片已恢复', 'success');
+        };
+        return recoverBtn;
+    }
+
     // 确保SortableJS加载正确
     if (typeof Sortable !== 'undefined') {
         // 初始化SortableJS让图片可以拖拽排序
@@ -73,6 +120,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // 处理文件选择
     fileInput.addEventListener('change', function() {
         handleFiles(this.files);
+        // 重置 input 的值，这样相同的文件可以再次触发 change 事件
+        this.value = '';
     });
     
     // 处理上传的文件
@@ -86,18 +135,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 item.classList.remove('selected');
             });
             
-            // 重置全选状态
             isSelectAll = false;
             if (selectAllBtn) {
                 selectAllBtn.textContent = '全选';
             }
         }
         
+        let addedCount = 0;
+        
         Array.from(files).forEach(file => {
             if (file.type.match('image.*')) {
+                // 检查是否是已删除的图片
+                if (isDeletedImage(file)) {
+                    const confirmRecover = confirm('此图片之前已被删除，是否恢复？');
+                    if (confirmRecover) {
+                        const hash = getFileHash(file);
+                        deletedImages.delete(hash);
+                        addImageToList(file);
+                        showToast('图片已恢复', 'success');
+                        addedCount++;
+                    }
+                    return;
+                }
+
                 addImageToList(file);
+                addedCount++;
+                
+                // 单张图片上传时显示提示
+                if (files.length === 1) {
+                    showToast('图片上传成功', 'success');
+                }
             }
         });
+        
+        // 多张图片上传时显示统计提示
+        if (files.length > 1 && addedCount > 0) {
+            showToast(`成功添加 ${addedCount} 张图片`, 'success');
+        }
         
         updateButtonState();
     }
@@ -111,14 +185,16 @@ document.addEventListener('DOMContentLoaded', function() {
             img.src = e.target.result;
             
             img.onload = function() {
-                const imageIndex = uploadedImages.length;
-                uploadedImages.push({
+                const imageIndex = document.querySelectorAll('.image-item').length;
+                const imageData = {
+                    file: file,
                     src: e.target.result,
                     width: img.width,
                     height: img.height,
                     name: file.name,
                     rotation: 0
-                });
+                };
+                uploadedImages.push(imageData);
                 
                 const imageItem = document.createElement('div');
                 imageItem.className = 'image-item';
@@ -141,18 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 removeBtn.innerHTML = '<i class="material-icons">close</i>';
                 removeBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    const index = parseInt(imageItem.dataset.index);
-                    uploadedImages.splice(index, 1);
-                    imageItem.remove();
-                    
-                    // 更新其他图片的索引
-                    const items = document.querySelectorAll('.image-item');
-                    items.forEach((item, i) => {
-                        item.dataset.index = i;
-                    });
-                    
-                    updateButtonState();
-                    updateDeleteButtonState();
+                    removeImage(imageItem, file);
                 });
                 
                 // 创建旋转控制区域
@@ -188,27 +253,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 imageItem.appendChild(rotateControls);
                 imageItem.appendChild(removeBtn);
                 
-                // 添加点击事件，选中图片
-                imageItem.addEventListener('click', function() {
-                    this.classList.toggle('selected');
-                    updateDeleteButtonState();
-                    
-                    // 更新选择全部按钮状态
-                    const totalItems = document.querySelectorAll('.image-item').length;
-                    const selectedItems = document.querySelectorAll('.image-item.selected').length;
-                    
-                    if (selectedItems === totalItems) {
-                        isSelectAll = true;
-                        selectAllBtn.textContent = '取消全选';
-                    } else {
-                        isSelectAll = false;
-                        selectAllBtn.textContent = '全选';
-                    }
-                });
-                
                 imageList.appendChild(imageItem);
                 
                 updateButtonState();
+                updateDeleteButtonState();
             };
         };
         
@@ -547,4 +595,29 @@ document.addEventListener('DOMContentLoaded', function() {
         updateButtonState();
         updateDeleteButtonState();
     });
+
+    // 修改删除图片的处理
+    function removeImage(imageItem, file) {
+        const hash = getFileHash(file);
+        deletedImages.set(hash, {
+            file: file,
+            timestamp: new Date().getTime()
+        });
+        
+        const index = parseInt(imageItem.dataset.index);
+        if (index >= 0 && index < uploadedImages.length) {
+            uploadedImages.splice(index, 1);
+            
+            // 更新剩余图片的索引
+            const remainingItems = document.querySelectorAll('.image-item');
+            remainingItems.forEach((item, i) => {
+                item.dataset.index = i;
+            });
+        }
+        
+        imageList.removeChild(imageItem);
+        updateButtonState();
+        updateDeleteButtonState();
+        showToast('图片已删除，可以重新上传来恢复', 'info');
+    }
 }); 
