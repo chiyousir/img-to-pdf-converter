@@ -464,16 +464,39 @@ document.addEventListener('DOMContentLoaded', function() {
         // 获取所有选中的图片项
         const selectedItems = document.querySelectorAll('.image-item.selected');
         
-        // 取消所有选中的图片
-        selectedItems.forEach(item => {
-            item.classList.remove('selected');
+        // 没有选中的图片，直接返回
+        if (selectedItems.length === 0) return;
+        
+        // 获取所有选中项的索引（从大到小排序，避免删除时影响其他索引）
+        const selectedIndices = Array.from(selectedItems)
+            .map(item => parseInt(item.dataset.index))
+            .sort((a, b) => b - a); // 从大到小排序
+        
+        // 按索引从大到小顺序删除图片（避免删除前面的项目影响后面项目的索引）
+        selectedIndices.forEach(index => {
+            if (index >= 0 && index < uploadedImages.length) {
+                // 从数组中删除
+                uploadedImages.splice(index, 1);
+                // 从DOM中删除
+                const itemToRemove = document.querySelector(`.image-item[data-index="${index}"]`);
+                if (itemToRemove) {
+                    itemToRemove.remove();
+                }
+            }
+        });
+        
+        // 更新剩余图片的索引
+        const remainingItems = document.querySelectorAll('.image-item');
+        remainingItems.forEach((item, i) => {
+            item.dataset.index = i;
         });
         
         // 重置全选状态
         isSelectAll = false;
         selectAllBtn.textContent = '全选';
         
-        // 更新删除按钮状态
+        // 更新按钮状态
+        updateButtonState();
         updateDeleteButtonState();
     });
     
@@ -505,8 +528,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 清除所有图片
     clearBtn.addEventListener('click', function() {
+        // 清空图片数组
         uploadedImages.length = 0;
-        imageList.innerHTML = '';
+        
+        // 清空图片列表DOM，但保留事件监听
+        while (imageList.firstChild) {
+            imageList.removeChild(imageList.firstChild);
+        }
+        
+        // 重置选择状态
         isSelectAll = false;
         selectAllBtn.textContent = '全选';
         
