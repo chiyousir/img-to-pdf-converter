@@ -5,9 +5,9 @@
 ## 网站结构
 
 - **主页 (index.html)**: 网站首页，介绍VVChange及其主要工具
-- **工具转换页 (tools.html)**: 展示所有可用的转换工具
-- **图片转PDF (img-to-pdf.html)**: 图片转PDF工具页面
-- **PDF转图片 (pdf-to-img.html)**: PDF转图片工具页面
+- **工具转换页 (#tools-section)**: 展示所有可用的转换工具
+- **图片转PDF (img-pdf/index.html)**: 图片转PDF工具页面
+- **PDF转图片 (pdf-img/index.html)**: PDF转图片工具页面
 
 ## 技术特点
 
@@ -24,9 +24,9 @@
 ```
 vvchange/
 ├── index.html         # 网站首页
-├── tools.html         # 工具转换页面
-├── img-to-pdf.html    # 图片转PDF工具页
-├── pdf-to-img.html    # PDF转图片工具页
+├── #tools-section         # 工具转换页面
+├── img-pdf/index.html    # 图片转PDF工具页
+├── pdf-img/index.html    # PDF转图片工具页
 ├── styles.css         # 样式表
 ├── script.js          # JavaScript脚本
 └── images/            # 图标和图片资源
