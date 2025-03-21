@@ -1,47 +1,47 @@
-# 图片转PDF工具
+# Image to PDF Converter
 
-一个简单易用的网页工具，可以将多张图片转换为PDF文档。
+A simple and easy-to-use web tool for converting multiple images to PDF documents.
 
-## 功能特点
+## Features
 
-- 支持拖放上传图片
-- 支持选择多张图片同时上传
-- 支持拖拽排序图片顺序
-- 自动调整图片大小以适应PDF页面
-- 每张图片单独成页
-- 生成的PDF自动下载
+- Support drag and drop image upload
+- Support selecting multiple images simultaneously
+- Support drag and drop to reorder images
+- Automatically resize images to fit PDF pages
+- Each image on a separate page
+- Automatically download generated PDF
 
-## 使用方法
+## How to Use
 
-1. 打开index.html文件
-2. 通过点击"选择文件"按钮或拖放图片到指定区域来上传图片
-3. 上传后可以看到图片预览，并可以：
-   - 拖拽图片调整顺序
-   - 点击图片右上角的"×"按钮删除不需要的图片
-4. 点击"生成PDF"按钮将图片转换为PDF并自动下载
-5. 点击"清除所有"按钮可以一键清除所有已上传的图片
+1. Open index.html file
+2. Upload images by clicking the "Select Files" button or dragging images to the designated area
+3. After uploading, you can see image previews and:
+   - Drag images to adjust order
+   - Click the "×" button in the top right corner of images to delete unwanted ones
+4. Click "Generate PDF" button to convert images to PDF and download automatically
+5. Click "Clear All" button to remove all uploaded images at once
 
-## 技术说明
+## Technical Details
 
-本工具使用纯前端技术实现，无需服务器支持：
+This tool is implemented using pure frontend technologies, no server support required:
 
-- HTML5提供界面结构
-- CSS3提供样式和响应式设计
-- JavaScript提供交互逻辑
-- jsPDF库用于生成PDF文档
-- Sortable.js库用于实现拖拽排序功能
+- HTML5 provides interface structure
+- CSS3 provides styling and responsive design
+- JavaScript provides interaction logic
+- jsPDF library for generating PDF documents
+- Sortable.js library for implementing drag and drop sorting
 
-## 浏览器兼容性
+## Browser Compatibility
 
-支持所有现代浏览器，包括：
+Supports all modern browsers, including:
 
 - Chrome
 - Firefox
 - Edge
 - Safari
 
-## 注意事项
+## Notes
 
-- 图片越大，处理时间可能越长
-- 生成的PDF质量取决于原始图片质量
-- 本工具在本地运行，不会上传您的图片到任何服务器 
+- Larger images may take longer to process
+- Generated PDF quality depends on original image quality
+- This tool runs locally and does not upload your images to any server 

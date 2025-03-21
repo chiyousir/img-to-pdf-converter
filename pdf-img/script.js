@@ -1,4 +1,4 @@
-// Ensure PDF.js is properly loaded
+// Ensure PDF.js is loaded correctly
 if (typeof pdfjsLib === 'undefined') {
     pdfjsLib = window.pdfjsLib;
 }
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Drag and drop events
     setupDragAndDrop();
     
-    // File selection events
+    // File selection event
     fileInput.addEventListener('change', handleFileSelect);
     
     // Convert button click event
@@ -51,6 +51,7 @@ function setupDragAndDrop() {
     // Prevent browser default behavior
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         uploadArea.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
     });
     
     // Highlight drop area
@@ -58,229 +59,199 @@ function setupDragAndDrop() {
         uploadArea.addEventListener(eventName, highlight, false);
     });
     
-    // Remove highlight
     ['dragleave', 'drop'].forEach(eventName => {
         uploadArea.addEventListener(eventName, unhighlight, false);
     });
     
-    // Handle drop
+    // Handle dropped files
     uploadArea.addEventListener('drop', handleDrop, false);
-    
-    // Handle click on upload area
-    uploadArea.addEventListener('click', (e) => {
-        if (e.target === uploadArea || e.target.closest('.upload-btn')) {
-            fileInput.click();
-        }
-    });
 }
 
-// Prevent default browser behaviors
+// Prevent defaults
 function preventDefaults(e) {
     e.preventDefault();
     e.stopPropagation();
 }
 
-// Highlight drop area
+// Highlight upload area
 function highlight() {
     uploadArea.classList.add('highlight');
 }
 
-// Remove highlight from drop area
+// Remove highlight from upload area
 function unhighlight() {
     uploadArea.classList.remove('highlight');
 }
 
-// Handle file drop
+// Handle dropped files
 function handleDrop(e) {
     const dt = e.dataTransfer;
     const files = dt.files;
     
     if (files.length > 0) {
-        // Only accept the first file
+        // Only process the first file
         const file = files[0];
-        
         if (file.type === 'application/pdf') {
             handlePdfFile(file);
         } else {
-            showToast('Please select a PDF file', 'error');
+            showToast('Please upload a PDF file', 'error');
         }
     }
 }
 
 // Handle file selection
 function handleFileSelect(e) {
-    const file = e.target.files[0];
+    const files = e.target.files;
     
-    if (file) {
+    if (files.length > 0) {
+        const file = files[0];
         if (file.type === 'application/pdf') {
             handlePdfFile(file);
         } else {
-            showToast('Please select a PDF file', 'error');
+            showToast('Please upload a PDF file', 'error');
         }
-        // Reset input value to allow selecting the same file again
-        fileInput.value = '';
     }
 }
 
 // Process PDF file
 async function handlePdfFile(file) {
     try {
-        // Clear previous PDF
-        if (currentPdfFile) {
-            clearAll();
+        // If the file is too large, show a warning
+        if (file.size > 200 * 1024 * 1024) { // 200MB
+            showToast('File is large, conversion may take longer', 'warning');
         }
         
+        // Store current PDF file
         currentPdfFile = file;
         
-        // Check file size
-        if (file.size > 200 * 1024 * 1024) { // 200MB limit
-            showToast('File is too large. Maximum size is 200MB', 'error');
-            return;
-        }
+        // Load PDF file
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         
-        // Show loading toast
-        showToast('Loading PDF file...', 'info');
+        pdfDocument = await loadingTask.promise;
+        pdfPages = pdfDocument.numPages;
         
-        // Load PDF using PDF.js
-        const fileReader = new FileReader();
-        fileReader.onload = async function(e) {
-            try {
-                const typedArray = new Uint8Array(e.target.result);
-                pdfDocument = await pdfjsLib.getDocument({ data: typedArray }).promise;
-                pdfPages = pdfDocument.numPages;
-                
-                // Show PDF information
-                showPdfInfo(file, pdfDocument);
-                
-                // Show conversion options
-                conversionOptions.style.display = 'block';
-                
-                // Enable convert button
-                convertBtn.disabled = false;
-                clearBtn.disabled = false;
-                
-                showToast('PDF loaded successfully', 'success');
-            } catch (err) {
-                console.error('Error loading PDF:', err);
-                showToast('Failed to load PDF file: ' + err.message, 'error');
-            }
-        };
-        fileReader.readAsArrayBuffer(file);
+        // Display PDF basic information
+        showPdfInfo(file, pdfDocument);
+        
+        // Show conversion options
+        conversionOptions.style.display = 'block';
+        
+        // Show control buttons area
+        document.querySelector('.controls').style.display = 'flex';
+        
+        // Activate convert and clear buttons
+        convertBtn.disabled = false;
+        clearBtn.disabled = false;
+        
+        showToast('PDF file loaded successfully, starting automatic conversion', 'success');
+        
+        // Start conversion automatically
+        convertPdfToImages();
     } catch (error) {
-        console.error('Error handling PDF file:', error);
-        showToast('Error processing PDF file: ' + error.message, 'error');
+        console.error('PDF loading error:', error);
+        showToast('PDF file loading failed, please check if the file is valid', 'error');
     }
 }
 
-// Display PDF information and thumbnails
+// Only show PDF basic info, no preview
 function showPdfInfo(file, pdfDoc) {
+    // Clear preview area
     pdfPreview.innerHTML = '';
     
-    // Create PDF info container
-    const pdfInfoContainer = document.createElement('div');
-    pdfInfoContainer.className = 'pdf-info';
+    // Create PDF info area
+    const pdfInfo = document.createElement('div');
+    pdfInfo.className = 'pdf-info';
     
-    // Create PDF icon
+    // Left side info
+    const pdfInfoLeft = document.createElement('div');
+    pdfInfoLeft.className = 'pdf-info-left';
+    
+    // PDF icon
     const pdfIcon = document.createElement('div');
     pdfIcon.className = 'pdf-icon';
     pdfIcon.innerHTML = '<i class="material-icons">picture_as_pdf</i>';
     
-    // Create PDF details
+    // Add file loading animation
+    pdfIcon.style.transform = 'scale(0.8)';
+    pdfIcon.style.opacity = '0';
+    
+    // PDF details
     const pdfDetails = document.createElement('div');
     pdfDetails.className = 'pdf-details';
+    pdfDetails.innerHTML = `
+        <h4>${file.name}</h4>
+        <p>${formatFileSize(file.size)} | ${pdfDoc.numPages} pages</p>
+    `;
     
-    // File name
-    const fileName = document.createElement('h3');
-    fileName.textContent = file.name;
+    // Detail animation preparation
+    pdfDetails.style.transform = 'translateY(10px)';
+    pdfDetails.style.opacity = '0';
     
-    // File info
-    const fileInfo = document.createElement('div');
-    fileInfo.className = 'file-info';
+    pdfInfoLeft.appendChild(pdfIcon);
+    pdfInfoLeft.appendChild(pdfDetails);
+    pdfInfo.appendChild(pdfInfoLeft);
     
-    // Number of pages
-    const pagesInfo = document.createElement('span');
-    pagesInfo.innerHTML = `<i class="material-icons">filter_none</i> ${pdfDoc.numPages} Pages`;
+    // Add to preview area
+    pdfPreview.appendChild(pdfInfo);
+    pdfPreview.style.display = 'block';
     
-    // File size
-    const sizeInfo = document.createElement('span');
-    sizeInfo.innerHTML = `<i class="material-icons">sd_storage</i> ${formatFileSize(file.size)}`;
-    
-    fileInfo.appendChild(pagesInfo);
-    fileInfo.appendChild(sizeInfo);
-    
-    pdfDetails.appendChild(fileName);
-    pdfDetails.appendChild(fileInfo);
-    
-    pdfInfoContainer.appendChild(pdfIcon);
-    pdfInfoContainer.appendChild(pdfDetails);
-    
-    pdfPreview.appendChild(pdfInfoContainer);
-    
-    // Create thumbnails container
-    const thumbnailsContainer = document.createElement('div');
-    thumbnailsContainer.className = 'pdf-thumbnails';
-    
-    // Create thumbnails heading
-    const thumbnailsHeading = document.createElement('h4');
-    thumbnailsHeading.textContent = 'Preview Pages';
-    thumbnailsContainer.appendChild(thumbnailsHeading);
-    
-    // Create thumbnails grid
-    const thumbnailsGrid = document.createElement('div');
-    thumbnailsGrid.className = 'thumbnails-grid';
-    
-    // Generate thumbnails for the first few pages (up to 6)
-    const pagesToShow = Math.min(pdfDoc.numPages, 6);
-    
-    for (let i = 1; i <= pagesToShow; i++) {
-        pdfDoc.getPage(i).then(page => {
-            createPageThumbnail(page, i).then(thumbnail => {
-                thumbnailsGrid.appendChild(thumbnail);
-            });
-        });
-    }
-    
-    thumbnailsContainer.appendChild(thumbnailsGrid);
-    pdfPreview.appendChild(thumbnailsContainer);
+    // Apply entrance animation
+    setTimeout(() => {
+        pdfIcon.style.transition = 'all 0.5s ease';
+        pdfIcon.style.transform = 'scale(1)';
+        pdfIcon.style.opacity = '1';
+        
+        setTimeout(() => {
+            pdfDetails.style.transition = 'all 0.5s ease';
+            pdfDetails.style.transform = 'translateY(0)';
+            pdfDetails.style.opacity = '1';
+        }, 200);
+    }, 100);
 }
 
-// Create thumbnail for a PDF page
+// Create page thumbnail
 async function createPageThumbnail(page, pageNumber) {
-    const scale = 0.2;
-    const viewport = page.getViewport({ scale });
+    const viewport = page.getViewport({ scale: 0.3 });
     
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     
+    // Render page to canvas
     await page.render({
         canvasContext: context,
         viewport: viewport
     }).promise;
     
+    // Create thumbnail container
     const thumbnail = document.createElement('div');
     thumbnail.className = 'page-thumbnail';
     
-    const pageImg = document.createElement('img');
-    pageImg.src = canvas.toDataURL('image/jpeg');
+    // Convert canvas to image
+    const img = document.createElement('img');
+    img.src = canvas.toDataURL();
+    thumbnail.appendChild(img);
     
-    const pageLabel = document.createElement('span');
-    pageLabel.className = 'page-number';
-    pageLabel.textContent = `Page ${pageNumber}`;
-    
-    thumbnail.appendChild(pageImg);
-    thumbnail.appendChild(pageLabel);
+    // Add page number
+    const pageNumberDiv = document.createElement('div');
+    pageNumberDiv.className = 'page-number';
+    pageNumberDiv.textContent = `Page ${pageNumber}`;
+    thumbnail.appendChild(pageNumberDiv);
     
     return thumbnail;
 }
 
-// Format file size for display
+// Format file size
 function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
-    else return (bytes / 1073741824).toFixed(1) + ' GB';
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 // Convert PDF to images
@@ -291,444 +262,416 @@ async function convertPdfToImages() {
         isConverting = true;
         convertedImages = [];
         
-        // Show converting status
+        // Hide convert button, emphasize clear button
+        convertBtn.style.display = 'none';
+        clearBtn.style.flex = '1';
+        
+        // Show conversion status
         showConvertingStatus();
         
-        // Get conversion options
-        const format = 'jpg'; // Default format is JPG
-        const quality = 0.92; // Default quality (92% for JPG)
-        const dpi = 300; // Default DPI
+        // Use fixed high-quality settings
+        const format = 'jpg'; // Fixed jpg format
+        const quality = 1.0; // Highest quality 100%
+        const dpi = 300; // Highest resolution DPI
         
-        // Scale factor based on DPI (72 DPI is the default for PDF)
-        const scale = dpi / 72;
+        // Calculate scale
+        const scale = dpi / 72; // 72 is the default PDF DPI
         
-        // Start conversion
-        updateConvertingStatus('Preparing to convert...', 0);
-        await sleep(500); // Short delay for UI update
+        // Show conversion progress
+        updateConvertingStatus(`Initializing conversion engine...`, 0);
+        await sleep(500); // Small delay to make UI updates visible
         
-        // Use the full page range
-        let startPage = 1;
-        let endPage = pdfPages;
+        // Convert page by page
+        let processedPages = 0;
         
-        // Total pages to process
-        const totalPages = endPage - startPage + 1;
+        // First prepare all pages to avoid repeated loading
+        updateConvertingStatus(`Analyzing PDF document...`, 5);
+        await sleep(300);
         
-        // Process each page
-        for (let i = startPage; i <= endPage; i++) {
-            // Update status
-            updateConvertingStatus(`Converting page ${i} of ${endPage}...`, ((i - startPage) / totalPages) * 100);
-            
-            // Get the page
-            const page = await pdfDocument.getPage(i);
-            
-            // Render page to image
-            const imageData = await renderPageToImage(page, scale, format, quality);
-            
-            // Add to converted images
-            convertedImages.push({
-                pageNumber: i,
-                data: imageData,
-                format: format
-            });
-            
-            // Small delay to prevent UI freezing
-            await sleep(10);
+        // Add some random waiting time to make progress more natural
+        updateConvertingStatus(`Preparing to convert ${pdfPages} pages...`, 10);
+        await sleep(500);
+        
+        for (let i = 1; i <= pdfPages; i++) {
+            try {
+                updateConvertingStatus(`Processing page ${i}...`, (processedPages / pdfPages) * 80 + 10);
+                
+                const page = await pdfDocument.getPage(i);
+                const imageData = await renderPageToImage(page, scale, format, quality);
+                
+                convertedImages.push({
+                    pageNumber: i,
+                    data: imageData,
+                    format: format
+                });
+                
+                processedPages++;
+                const progressPercentage = (processedPages / pdfPages) * 80 + 10; // 10-90% progress range
+                updateConvertingStatus(`Converted ${processedPages}/${pdfPages} pages`, progressPercentage);
+                
+                // For long documents, reduce delay between pages
+                if (pdfPages > 10) {
+                    await sleep(50);
+                } else {
+                    await sleep(100); // Shorter documents can have more natural delay
+                }
+            } catch (error) {
+                console.error(`Error converting page ${i}:`, error);
+                showToast(`Error converting page ${i}`, 'error');
+            }
         }
         
-        // Update status
-        updateConvertingStatus('Finalizing conversion...', 100);
-        await sleep(500); // Short delay for UI update
+        // Finish conversion, process results
+        updateConvertingStatus(`Organizing conversion results...`, 90);
+        await sleep(500);
         
-        // Hide converting status
+        updateConvertingStatus(`Conversion complete, preparing preview...`, 95);
+        await sleep(300);
+        
+        // Conversion complete
         hideConvertingStatus();
         
-        // Show results
-        displayResults();
-        
-        // Show toast
-        showToast(`Successfully converted ${convertedImages.length} pages to images`, 'success');
-        
-        // Show download options
-        downloadOptions.style.display = 'block';
+        if (convertedImages.length > 0) {
+            showToast(`Conversion complete, ${convertedImages.length} pages available for download`, 'success');
+            displayResults();
+        } else {
+            showToast('Conversion failed, no images were generated', 'error');
+        }
     } catch (error) {
-        console.error('Error converting PDF to images:', error);
+        console.error('Error in conversion process:', error);
+        showToast('Error during conversion process', 'error');
         hideConvertingStatus();
-        showToast('Error converting PDF: ' + error.message, 'error');
     } finally {
         isConverting = false;
     }
 }
 
-// Sleep function for delays
+// Helper function: wait for specified milliseconds
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Render a PDF page to an image
+// Render page to image
 async function renderPageToImage(page, scale, format, quality) {
-    const viewport = page.getViewport({ scale });
+    const viewport = page.getViewport({ scale: scale });
     
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     
+    // Set background to white
+    context.fillStyle = 'white';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Render page to canvas
     await page.render({
         canvasContext: context,
         viewport: viewport
     }).promise;
     
     // Convert canvas to image data
-    let imageData;
-    if (format === 'jpg' || format === 'jpeg') {
-        imageData = canvas.toDataURL('image/jpeg', quality);
-    } else {
-        imageData = canvas.toDataURL('image/png');
-    }
-    
-    return imageData;
+    return format === 'jpg' 
+        ? canvas.toDataURL('image/jpeg', quality) 
+        : canvas.toDataURL('image/png');
 }
 
-// Show converting status overlay
+// Show converting status
 function showConvertingStatus() {
-    // Create overlay if it doesn't exist
-    let overlay = document.getElementById('convertingOverlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'convertingOverlay';
-        overlay.className = 'converting-overlay';
-        
-        const content = document.createElement('div');
-        content.className = 'converting-content';
-        
-        const spinner = document.createElement('div');
-        spinner.className = 'spinner';
-        
-        const status = document.createElement('div');
-        status.className = 'converting-status';
-        status.id = 'convertingStatus';
-        status.textContent = 'Converting...';
-        
-        const progress = document.createElement('div');
-        progress.className = 'progress-bar-container';
-        
-        const progressBar = document.createElement('div');
-        progressBar.className = 'progress-bar';
-        progressBar.id = 'convertingProgress';
-        
-        progress.appendChild(progressBar);
-        
-        content.appendChild(spinner);
-        content.appendChild(status);
-        content.appendChild(progress);
-        
-        overlay.appendChild(content);
-        document.body.appendChild(overlay);
+    // Clear any existing status elements
+    const existingStatus = document.querySelector('.converting-status');
+    if (existingStatus) {
+        existingStatus.remove();
     }
     
-    // Show overlay
-    overlay.style.display = 'flex';
+    // Create conversion status element
+    const convertingStatus = document.createElement('div');
+    convertingStatus.className = 'converting-status';
+    convertingStatus.style.display = 'block';
+    convertingStatus.innerHTML = `
+        <div class="section-title pulse-effect">
+            <i class="material-icons">autorenew</i>
+            <h3>Converting</h3>
+        </div>
+        <div class="spinner"></div>
+        <p class="status-text" id="statusText">Preparing conversion...</p>
+        <div class="page-counter" id="pageCounter">0/${pdfPages} pages</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="convertProgress"></div>
+        </div>
+        <p class="conversion-note">Conversion process may take some time, please be patient</p>
+    `;
+    
+    // Insert after controls button
+    const controls = document.querySelector('.controls');
+    controls.parentNode.insertBefore(convertingStatus, controls.nextSibling);
+    
+    // Disable convert button
+    convertBtn.disabled = true;
+    
+    // Scroll to status area
+    convertingStatus.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// Update converting status text and progress
+// Update conversion status
 function updateConvertingStatus(text, percentage) {
-    const status = document.getElementById('convertingStatus');
-    const progress = document.getElementById('convertingProgress');
+    const statusText = document.getElementById('statusText');
+    const progressBar = document.getElementById('convertProgress');
+    const pageCounter = document.getElementById('pageCounter');
     
-    if (status && progress) {
-        status.textContent = text;
-        progress.style.width = `${percentage}%`;
+    if (statusText && progressBar) {
+        statusText.textContent = text;
+        progressBar.style.width = `${percentage}%`;
         
-        // Change color based on progress
-        if (percentage < 30) {
-            progress.style.backgroundColor = '#f44336';
-        } else if (percentage < 70) {
-            progress.style.backgroundColor = '#ff9800';
-        } else {
-            progress.style.backgroundColor = '#4caf50';
+        // Update page counter
+        if (pageCounter) {
+            const processedPages = Math.round((percentage / 100) * pdfPages);
+            pageCounter.textContent = `${processedPages}/${pdfPages} pages`;
+        }
+        
+        // Update status text when progress is near completion
+        if (percentage > 95) {
+            statusText.textContent = "Finishing conversion...";
         }
     }
 }
 
-// Hide converting status overlay
+// Hide conversion status
 function hideConvertingStatus() {
-    const overlay = document.getElementById('convertingOverlay');
-    if (overlay) {
-        // Add fade-out class
-        overlay.classList.add('fade-out');
+    const convertingStatus = document.querySelector('.converting-status');
+    if (convertingStatus) {
+        // Update final status
+        const statusText = document.getElementById('statusText');
+        const progressBar = document.getElementById('convertProgress');
+        const pageCounter = document.getElementById('pageCounter');
         
-        // Remove after animation
+        if (statusText && progressBar && pageCounter) {
+            statusText.textContent = "Conversion complete!";
+            progressBar.style.width = "100%";
+            pageCounter.textContent = `${pdfPages}/${pdfPages} pages`;
+        }
+        
+        // Add success animation
+        const spinner = convertingStatus.querySelector('.spinner');
+        if (spinner) {
+            spinner.style.borderTopColor = '#2ecc71';
+            spinner.style.borderLeftColor = '#2ecc71';
+            spinner.style.animation = 'none';
+            spinner.innerHTML = '<i class="material-icons" style="font-size: 36px; color: #2ecc71; line-height: 64px;">check_circle</i>';
+        }
+        
+        // Fade out after delay
         setTimeout(() => {
-            if (overlay.parentNode) {
-                overlay.parentNode.removeChild(overlay);
-            }
-        }, 300);
+            convertingStatus.style.opacity = '0';
+            convertingStatus.style.transition = 'opacity 0.5s ease';
+            
+            // Remove after further delay
+            setTimeout(() => {
+                convertingStatus.remove();
+            }, 500);
+        }, 1000);
     }
+    
+    // Enable convert button
+    convertBtn.disabled = false;
 }
 
-// Display converted images
+// Display conversion results
 function displayResults() {
-    // Clear previous results
+    // Clear result area
     resultArea.innerHTML = '';
     
-    // Create results container
-    const resultsContainer = document.createElement('div');
-    resultsContainer.className = 'results-container';
+    // Add result title
+    const resultTitle = document.createElement('div');
+    resultTitle.className = 'section-title';
+    resultTitle.innerHTML = `<i class="material-icons">check_circle</i><h3>Conversion Complete (${convertedImages.length} pages)</h3>`;
+    resultArea.appendChild(resultTitle);
     
-    // Create heading
-    const heading = document.createElement('h3');
-    heading.innerHTML = '<i class="material-icons">image</i> Converted Images';
-    resultsContainer.appendChild(heading);
-    
-    // Create images grid
-    const imagesGrid = document.createElement('div');
-    imagesGrid.className = 'images-grid';
-    
-    // Add each converted image
-    convertedImages.forEach(image => {
-        // Create image item
-        const imageItem = document.createElement('div');
-        imageItem.className = 'image-item';
+    // Create result items
+    for (const image of convertedImages) {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'result-item';
         
-        // Create image container
-        const imageContainer = document.createElement('div');
-        imageContainer.className = 'image-container';
-        
-        // Create image element
+        // Image
         const img = document.createElement('img');
         img.src = image.data;
         img.alt = `Page ${image.pageNumber}`;
-        img.addEventListener('click', () => previewImage(image));
+        img.addEventListener('click', () => downloadSingleImage(image));
+        resultItem.appendChild(img);
         
-        // Create download button
-        const downloadBtn = document.createElement('button');
-        downloadBtn.className = 'image-download-btn';
-        downloadBtn.innerHTML = '<i class="material-icons">file_download</i>';
-        downloadBtn.title = 'Download this image';
-        downloadBtn.addEventListener('click', (e) => {
+        // Page info
+        const pageInfo = document.createElement('div');
+        pageInfo.className = 'page-info';
+        pageInfo.innerHTML = `<span>Page ${image.pageNumber}</span> <i class="material-icons download-icon">download</i>`;
+        
+        // Add download event
+        pageInfo.querySelector('.download-icon').addEventListener('click', (e) => {
             e.stopPropagation();
             downloadSingleImage(image);
         });
         
-        // Create image info
-        const imageInfo = document.createElement('div');
-        imageInfo.className = 'image-info';
-        imageInfo.textContent = `Page ${image.pageNumber}`;
+        resultItem.appendChild(pageInfo);
         
-        // Assemble image item
-        imageContainer.appendChild(img);
-        imageContainer.appendChild(downloadBtn);
-        imageItem.appendChild(imageContainer);
-        imageItem.appendChild(imageInfo);
-        
-        // Add to grid
-        imagesGrid.appendChild(imageItem);
-    });
-    
-    resultsContainer.appendChild(imagesGrid);
-    resultArea.appendChild(resultsContainer);
-    
-    // Show result area
-    resultArea.style.display = 'block';
-}
-
-// Preview image in full size
-function previewImage(image) {
-    // Create preview overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'preview-overlay';
-    
-    // Create preview container
-    const container = document.createElement('div');
-    container.className = 'preview-container';
-    
-    // Create image container
-    const imageContainer = document.createElement('div');
-    imageContainer.className = 'preview-image-container';
-    
-    // Create image
-    const img = document.createElement('img');
-    img.src = image.data;
-    img.alt = `Page ${image.pageNumber}`;
-    img.className = 'preview-image';
-    
-    // Create toolbar
-    const toolbar = document.createElement('div');
-    toolbar.className = 'preview-toolbar';
-    
-    // Page info
-    const pageInfo = document.createElement('div');
-    pageInfo.className = 'preview-page-info';
-    pageInfo.textContent = `Page ${image.pageNumber} of ${convertedImages.length}`;
-    
-    // Download button
-    const downloadBtn = document.createElement('button');
-    downloadBtn.className = 'preview-download-btn';
-    downloadBtn.innerHTML = '<i class="material-icons">file_download</i> Download';
-    downloadBtn.addEventListener('click', () => downloadSingleImage(image));
-    
-    // Close button
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'preview-close-btn';
-    closeBtn.innerHTML = '<i class="material-icons">close</i>';
-    closeBtn.addEventListener('click', closePreview);
-    
-    // Navigation buttons (if multiple pages)
-    if (convertedImages.length > 1) {
-        // Previous button
-        const prevBtn = document.createElement('button');
-        prevBtn.className = 'preview-nav-btn prev';
-        prevBtn.innerHTML = '<i class="material-icons">chevron_left</i>';
-        prevBtn.title = 'Previous page';
-        
-        // Next button
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'preview-nav-btn next';
-        nextBtn.innerHTML = '<i class="material-icons">chevron_right</i>';
-        nextBtn.title = 'Next page';
-        
-        // Add navigation functionality
-        prevBtn.addEventListener('click', () => {
-            const currentIndex = convertedImages.findIndex(img => img.pageNumber === image.pageNumber);
-            if (currentIndex > 0) {
-                // Update image and page info
-                img.src = convertedImages[currentIndex - 1].data;
-                pageInfo.textContent = `Page ${convertedImages[currentIndex - 1].pageNumber} of ${convertedImages.length}`;
-                // Update current image for download button
-                downloadBtn.onclick = () => downloadSingleImage(convertedImages[currentIndex - 1]);
-            }
-        });
-        
-        nextBtn.addEventListener('click', () => {
-            const currentIndex = convertedImages.findIndex(img => img.pageNumber === image.pageNumber);
-            if (currentIndex < convertedImages.length - 1) {
-                // Update image and page info
-                img.src = convertedImages[currentIndex + 1].data;
-                pageInfo.textContent = `Page ${convertedImages[currentIndex + 1].pageNumber} of ${convertedImages.length}`;
-                // Update current image for download button
-                downloadBtn.onclick = () => downloadSingleImage(convertedImages[currentIndex + 1]);
-            }
-        });
-        
-        toolbar.appendChild(prevBtn);
-        toolbar.appendChild(pageInfo);
-        toolbar.appendChild(nextBtn);
-    } else {
-        toolbar.appendChild(pageInfo);
+        // Add to result area
+        resultArea.appendChild(resultItem);
     }
     
-    // Add buttons to toolbar
-    toolbar.appendChild(downloadBtn);
-    toolbar.appendChild(closeBtn);
+    // Show download options
+    downloadOptions.style.display = 'flex';
     
-    // Assemble preview
-    imageContainer.appendChild(img);
-    container.appendChild(imageContainer);
-    container.appendChild(toolbar);
-    overlay.appendChild(container);
+    // Auto-scroll to download options
+    downloadOptions.scrollIntoView({ behavior: 'smooth' });
     
-    // Add to body
-    document.body.appendChild(overlay);
-    
-    // Enable close on background click
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-            closePreview();
-        }
-    });
-    
-    // Enable close on Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closePreview();
-        }
-    }, { once: true });
-    
-    // Prevent body scrolling
-    document.body.classList.add('no-scroll');
+    // Highlight download button
+    downloadAllBtn.classList.add('highlight-btn');
+    setTimeout(() => {
+        downloadAllBtn.classList.remove('highlight-btn');
+    }, 2000);
 }
 
-// Close image preview
-function closePreview() {
-    const overlay = document.querySelector('.preview-overlay');
-    if (overlay) {
-        // Add fade-out animation
-        overlay.classList.add('fade-out');
+// Image preview
+function previewImage(image) {
+    // Check if preview modal already exists
+    let previewModal = document.getElementById('previewModal');
+    
+    if (!previewModal) {
+        // Create preview modal
+        previewModal = document.createElement('div');
+        previewModal.id = 'previewModal';
+        previewModal.className = 'preview-modal';
+        previewModal.style.position = 'fixed';
+        previewModal.style.top = '0';
+        previewModal.style.left = '0';
+        previewModal.style.width = '100%';
+        previewModal.style.height = '100%';
+        previewModal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        previewModal.style.display = 'flex';
+        previewModal.style.alignItems = 'center';
+        previewModal.style.justifyContent = 'center';
+        previewModal.style.zIndex = '1000';
+        previewModal.style.opacity = '0';
+        previewModal.style.transition = 'opacity 0.3s ease';
         
-        // Remove after animation
-        setTimeout(() => {
-            if (overlay.parentNode) {
-                overlay.parentNode.removeChild(overlay);
+        // Click background to close preview
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) {
+                closePreview();
             }
-            // Restore body scrolling
-            document.body.classList.remove('no-scroll');
+        });
+        
+        document.body.appendChild(previewModal);
+    }
+    
+    // Set preview content
+    previewModal.innerHTML = `
+        <div style="max-width: 90%; max-height: 90%; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); position: relative;">
+            <img src="${image.data}" style="max-width: 100%; max-height: calc(90vh - 80px); display: block; object-fit: contain;">
+            <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; background: #f1f8e9; border-top: 1px solid #c8e6c9;">
+                <div style="font-size: 0.9rem; color: #424242;">
+                    Page ${image.pageNumber} | JPG Format | 300 DPI | Original Quality
+                </div>
+                <div>
+                    <button id="downloadPreviewBtn" style="background: linear-gradient(135deg, #4caf50, #2e7d32); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <i class="material-icons" style="font-size: 18px;">download</i> Download This Image
+                    </button>
+                </div>
+            </div>
+            <div style="position: absolute; top: 15px; right: 15px; width: 30px; height: 30px; background: rgba(0, 0, 0, 0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;" id="closePreviewBtn">
+                <i class="material-icons" style="color: white; font-size: 20px;">close</i>
+            </div>
+        </div>
+    `;
+    
+    // Show preview
+    setTimeout(() => {
+        previewModal.style.opacity = '1';
+    }, 10);
+    
+    // Add download event
+    document.getElementById('downloadPreviewBtn').addEventListener('click', () => {
+        downloadSingleImage(image);
+    });
+    
+    // Add close event
+    document.getElementById('closePreviewBtn').addEventListener('click', closePreview);
+    
+    // Prevent scrolling
+    document.body.style.overflow = 'hidden';
+}
+
+// Close preview
+function closePreview() {
+    const previewModal = document.getElementById('previewModal');
+    
+    if (previewModal) {
+        previewModal.style.opacity = '0';
+        
+        // Remove after delay
+        setTimeout(() => {
+            previewModal.remove();
+            // Restore scrolling
+            document.body.style.overflow = '';
         }, 300);
     }
 }
 
-// Download a single image
+// Download single image
 function downloadSingleImage(image) {
     const fileName = getFileName(currentPdfFile.name, image.pageNumber, image.format);
     
+    // Create download link
     const link = document.createElement('a');
     link.href = image.data;
     link.download = fileName;
+    document.body.appendChild(link);
     link.click();
-    
-    showToast(`Downloading ${fileName}`, 'success');
+    document.body.removeChild(link);
 }
 
-// Download all images as a ZIP file
+// Download all images in bulk
 async function downloadAllImages() {
-    if (convertedImages.length === 0) return;
+    if (!convertedImages.length) return;
     
     try {
-        // Check if JSZip is loaded
+        // Show loading status
+        showToast('Preparing download...', 'info');
+        
+        // Load JSZip library
         if (typeof JSZip === 'undefined') {
             await loadJSZip();
         }
         
-        // Show loading toast
-        showToast('Preparing ZIP file...', 'info');
-        
-        // Create new ZIP
         const zip = new JSZip();
+        const folder = zip.folder('images');
         
-        // Add each image to ZIP
+        // Add all images to zip
         convertedImages.forEach(image => {
-            const fileName = getFileName(currentPdfFile.name, image.pageNumber, image.format);
-            
-            // Convert data URL to blob
-            const dataUrl = image.data;
-            const binary = atob(dataUrl.split(',')[1]);
-            const array = [];
-            for (let i = 0; i < binary.length; i++) {
-                array.push(binary.charCodeAt(i));
-            }
-            const blob = new Blob([new Uint8Array(array)], { type: 'image/' + image.format });
-            
-            // Add to ZIP
-            zip.file(fileName, blob);
+            const fileName = getFileName('page', image.pageNumber, image.format);
+            const dataURL = image.data;
+            const base64Data = dataURL.split(',')[1];
+            folder.file(fileName, base64Data, { base64: true });
         });
         
-        // Generate ZIP file
-        const zipContent = await zip.generateAsync({ type: 'blob' });
+        // Generate zip file
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
         
-        // Download ZIP
+        // Download zip file
         const zipFileName = getZipFileName(currentPdfFile.name);
         const link = document.createElement('a');
-        link.href = URL.createObjectURL(zipContent);
+        link.href = URL.createObjectURL(zipBlob);
         link.download = zipFileName;
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
         
-        showToast(`Downloading ${zipFileName}`, 'success');
+        showToast('Download started', 'success');
     } catch (error) {
-        console.error('Error creating ZIP file:', error);
-        showToast('Error creating ZIP file: ' + error.message, 'error');
+        console.error('Bulk download error:', error);
+        showToast('Bulk download failed', 'error');
     }
 }
 
-// Load JSZip dynamically if not available
+// Load JSZip library
 function loadJSZip() {
     return new Promise((resolve, reject) => {
         if (typeof JSZip !== 'undefined') {
@@ -737,45 +680,51 @@ function loadJSZip() {
         }
         
         const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        script.src = 'libs/jszip.min.js';
         script.onload = resolve;
-        script.onerror = () => reject(new Error('Failed to load JSZip library'));
+        script.onerror = () => reject(new Error('Unable to load JSZip library'));
         document.head.appendChild(script);
     });
 }
 
-// Get file name for a single image
+// Get file name
 function getFileName(baseName, pageNumber, format) {
-    const baseNameWithoutExtension = baseName.replace(/\.[^/.]+$/, "");
-    return `${baseNameWithoutExtension}_page${pageNumber}.${format}`;
+    // Remove extension
+    const nameWithoutExt = baseName.replace(/\.[^/.]+$/, '');
+    return `${nameWithoutExt}_page${pageNumber}.${format}`;
 }
 
-// Get file name for ZIP archive
+// Get ZIP file name
 function getZipFileName(baseName) {
-    const baseNameWithoutExtension = baseName.replace(/\.[^/.]+$/, "");
-    return `${baseNameWithoutExtension}_images.zip`;
+    // Remove extension
+    const nameWithoutExt = baseName.replace(/\.[^/.]+$/, '');
+    return `${nameWithoutExt}_images.zip`;
 }
 
-// Clear all data and reset UI
+// Clear all
 function clearAll() {
-    // Reset file input
+    // Reset form
     fileInput.value = '';
     
-    // Clear PDF preview
+    // Reset preview and result areas
     pdfPreview.innerHTML = '';
+    pdfPreview.style.display = 'none';
+    resultArea.innerHTML = '';
     
-    // Hide conversion options
+    // Hide options and download areas
     conversionOptions.style.display = 'none';
+    downloadOptions.style.display = 'none';
     
-    // Disable buttons
+    // Hide control buttons area
+    document.querySelector('.controls').style.display = 'none';
+    
+    // Reset button status
     convertBtn.disabled = true;
     clearBtn.disabled = true;
     
-    // Hide result area
-    resultArea.style.display = 'none';
-    
-    // Hide download options
-    downloadOptions.style.display = 'none';
+    // Restore convert button display and style
+    convertBtn.style.display = '';
+    clearBtn.style.flex = '';
     
     // Reset variables
     currentPdfFile = null;
@@ -783,54 +732,46 @@ function clearAll() {
     pdfPages = 0;
     convertedImages = [];
     
-    // Remove any overlays
-    const overlay = document.getElementById('convertingOverlay');
-    if (overlay && overlay.parentNode) {
-        overlay.parentNode.removeChild(overlay);
-    }
-    
-    // Show upload area
-    uploadArea.style.display = 'flex';
-    
-    // Show toast
-    showToast('All cleared', 'info');
+    showToast('All content cleared', 'info');
 }
 
-// Show toast notification
+// Show toast message
 function showToast(message, type = 'info') {
-    // Create toast container if it doesn't exist
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.className = 'toast-container';
-        document.body.appendChild(toastContainer);
-    }
-    
-    // Create toast element
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     
-    // Set icon based on type
+    // Icon
     let icon = 'info';
-    if (type === 'success') icon = 'check_circle';
-    else if (type === 'warning') icon = 'warning';
-    else if (type === 'error') icon = 'error';
+    switch (type) {
+        case 'success': icon = 'check_circle'; break;
+        case 'error': icon = 'error'; break;
+        case 'warning': icon = 'warning'; break;
+        default: icon = 'info';
+    }
     
-    // Create toast content
     toast.innerHTML = `
-        <i class="material-icons">${icon}</i>
-        <span>${message}</span>
+        <i class="material-icons" style="color: ${type === 'error' ? '#f44336' : type === 'success' ? '#4caf50' : '#2196f3'};">${icon}</i>
+        <div class="toast-content">
+            <div class="toast-message">${message}</div>
+        </div>
+        <span class="toast-close" onclick="this.parentElement.remove();">
+            <i class="material-icons" style="font-size: 18px;">close</i>
+        </span>
     `;
     
     // Add to container
     toastContainer.appendChild(toast);
     
-    // Auto remove after timeout
+    // Show Toast
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    
+    // Auto-remove after 3 seconds
     setTimeout(() => {
         toast.classList.add('fade-out');
         setTimeout(() => {
-            if (toast.parentNode) {
-                toastContainer.removeChild(toast);
-            }
+            toast.remove();
         }, 300);
     }, 3000);
 } 

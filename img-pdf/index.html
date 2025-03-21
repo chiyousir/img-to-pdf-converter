@@ -3,55 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vvChange Smart Conversion Tool - Image to PDF Online Tool</title>
-    <meta name="description" content="vvChange online Image to PDF tool, free conversion of JPG, PNG and other image formats to PDF files. Supports batch conversion, image rotation, sorting and preview, convert online without installing software.">
-    <meta name="keywords" content="Image to PDF,JPG to PDF,PNG to PDF,Online conversion tool,Free PDF conversion,Image merge PDF,Batch conversion,Online PDF tool,vvChange,Image processing,File conversion">
+    <title>vvChange Smart Converter - Image to PDF Online Tool</title>
+    <meta name="description" content="vvChange online image to PDF converter, free conversion of JPG, PNG and other image formats to PDF files. Supports batch conversion, image rotation, sorting and preview, no software installation required.">
+    <meta name="keywords" content="image to PDF,JPG to PDF,PNG to PDF,online converter,free PDF conversion,image merge PDF,batch conversion,online PDF tool,vvChange,image processing,file conversion">
     <meta name="author" content="vvChange">
     <meta name="robots" content="index, follow">
     
     <!-- Open Graph / Social Media Sharing -->
-    <meta property="og:title" content="vvChange - Free Online Image to PDF Tool">
-    <meta property="og:description" content="Quickly merge and convert multiple images to PDF files, supports rotation, sorting and preview, simple and efficient operation.">
+    <meta property="og:title" content="vvChange - Free Online Image to PDF Converter">
+    <meta property="og:description" content="Quickly merge and convert multiple images to PDF files, with support for rotation, sorting and preview, simple and efficient operation.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.vvchange.top/img-pdf/">
     
     <!-- Canonical Link -->
     <link rel="canonical" href="https://www.vvchange.top/img-pdf/">
     
-    <!-- Structured Data / Schema.org -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "vvChange Image to PDF Converter",
-      "url": "https://www.vvchange.top/img-pdf/",
-      "description": "Free online tool to convert JPG, PNG and other image formats to PDF files.",
-      "applicationCategory": "File Converter",
-      "operatingSystem": "All",
-      "offers": {
-        "@type": "Offer",
-        "price": "0"
-      }
-    }
-    </script>
-    
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T56Z1TK03V"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-    
-      gtag('config', 'G-T56Z1TK03V');
-    </script>
-    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
     <!-- Material Icons -->
     <link rel="stylesheet" href="fonts/material-icons.css">
     
-    
-    <!-- Preload necessary libraries -->
+    <!-- Preload Essential Libraries -->
     <script src="libs/jspdf.umd.min.js"></script>
     <script src="libs/Sortable.min.js"></script>
     <style>
@@ -123,7 +95,7 @@
             <div class="upload-icon">
                 <i class="material-icons">cloud_upload</i>
             </div>
-            <p>Click here upload image</p>
+            <p>Click here to upload images</p>
             <label for="fileInput" class="upload-btn">
                 <i class="material-icons">add_photo_alternate</i>
                 Select Images
@@ -158,30 +130,30 @@
             <h3><i class="material-icons">help_outline</i> Instructions</h3>
             <ul>
                 <li>Supports uploading multiple images</li>
-                <li>Click on an image to preview it larger</li>
+                <li>Click on an image to preview</li>
                 <li>Supports image rotation</li>
-                <li>You can drag images to adjust the order</li>
-                <li>You can select images to merge into a PDF file</li>
-                <li>If no images are selected, all images will be merged into one PDF file by default</li>
-                <li>The generated PDF will be automatically downloaded</li>
+                <li>Drag and drop images to reorder</li>
+                <li>Select images to merge into a PDF file</li>
+                <li>If no images are selected, all images will be merged into one PDF file</li>
+                <li>Generated PDF will be downloaded automatically</li>
             </ul>
         </div>
         
         <div class="footer">
-            <p>©2025-vvChange Smart Conversion Tool | Efficient and convenient file processing solution</p>
-            <p>For questions, please email: chiyou1216@gmail.com</p>
+            <p>©2025-vvChange Smart Converter | Efficient File Processing Solution</p>
+            <p>For inquiries, please email: chiyou1216@gmail.com</p>
         </div>
     </div>
     
-    <!-- Use alternative CDN as backup -->
+    <!-- Use backup CDN as fallback -->
     <script>
         // Check if jsPDF is loaded
         if (typeof window.jspdf === 'undefined') {
-            console.log('jsPDF failed to load correctly, trying to load alternative library');
+            console.log('jsPDF not loaded correctly, attempting to load backup library');
             const script = document.createElement('script');
             script.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
             script.onload = function() {
-                console.log('Alternative jsPDF loaded');
+                console.log('Backup jsPDF loaded');
             };
             script.onerror = function() {
                 console.error('Unable to load jsPDF');
@@ -192,6 +164,5 @@
     </script>
     
     <script src="script.js"></script>
-    
 </body>
 </html> 

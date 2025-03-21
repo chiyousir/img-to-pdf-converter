@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectAllBtn = document.getElementById('selectAllBtn');
     const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
     
-    // Ensure buttons are correctly found
-    console.log('Button status at initialization:', { 
+    // Ensure buttons are found correctly
+    console.log('Initial button states:', { 
         convertBtn: convertBtn ? convertBtn.disabled : 'not found',
         clearBtn: clearBtn ? clearBtn.disabled : 'not found',
         selectAllBtn: selectAllBtn ? selectAllBtn.disabled : 'not found',
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     selectAllBtn.classList.add('hidden');
     deleteSelectedBtn.classList.add('hidden');
     
-    // Store uploaded images and deleted images
+    // Store uploaded and deleted images
     const uploadedImages = [];
     const deletedImages = new Map(); // Use Map to store deleted images, key is image hash, value is {file, timestamp}
     let isSelectAll = false;
@@ -30,13 +30,13 @@ document.addEventListener('DOMContentLoaded', function() {
     toastContainer.className = 'toast-container';
     document.body.appendChild(toastContainer);
 
-    // Function to show toast message
+    // Function to show toast messages
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         
         // Set icon color
-        let iconColor = '#e53935'; // Default use main red color
+        let iconColor = '#e53935'; // Default main color red
         if (type === 'success') {
             iconColor = '#4caf50'; // Success message uses green
         } else if (type === 'warning') {
@@ -55,114 +55,90 @@ document.addEventListener('DOMContentLoaded', function() {
             icon = 'error';
         }
         
+        // Create content with appropriate style
         toast.innerHTML = `
-            <i class="material-icons" style="color: ${iconColor}">${icon}</i>
-            <span>${message}</span>
+            <div class="toast-content">
+                <i class="material-icons" style="color: ${iconColor}; margin-right: 8px;">${icon}</i>
+                <span>${message}</span>
+                <button class="toast-close" style="margin-left: 10px; background: none; border: none; cursor: pointer;">
+                    <i class="material-icons" style="font-size: 16px; color: #999;">close</i>
+                </button>
+            </div>
         `;
+        
+        // Add close button event
+        const closeBtn = toast.querySelector('.toast-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                toast.classList.add('fade-out');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 300);
+            });
+        }
         
         toastContainer.appendChild(toast);
         
-        // Automatically remove toast after 3 seconds
+        // Automatically disappear after 3 seconds
         setTimeout(() => {
-            toast.classList.add('hide');
-            setTimeout(() => {
-                toastContainer.removeChild(toast);
-            }, 300);
+            if (toast.parentNode) {
+                toast.classList.add('fade-out');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 300);
+            }
         }, 3000);
     }
-    
-    // Initialize Sortable for image list
-    if (typeof Sortable !== 'undefined') {
-        new Sortable(imageList, {
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            onEnd: function() {
-                // Update array order after drag
-                const imageItems = Array.from(imageList.querySelectorAll('.image-item'));
-                const newOrder = [];
-                
-                imageItems.forEach(item => {
-                    const index = parseInt(item.dataset.index);
-                    newOrder.push(uploadedImages[index]);
-                });
-                
-                // Reassign with new order
-                uploadedImages.length = 0;
-                uploadedImages.push(...newOrder);
-                
-                // Update index attribute
-                imageItems.forEach((item, i) => {
-                    item.dataset.index = i;
-                });
-            }
-        });
-    } else {
-        console.error('Sortable library not loaded');
-        showToast('Unable to load sorting functionality', 'error');
-    }
-    
-    // Function to get file hash for duplicate detection
+
+    // Calculate file hash (using filename and size as simple hash)
     function getFileHash(file) {
-        // Simple hash using file name, size and last modified time
-        return `${file.name}-${file.size}-${file.lastModified}`;
+        return `${file.name}-${file.size}`;
     }
-    
-    // Check if image is in deleted map
+
+    // Check if image is deleted
     function isDeletedImage(file) {
         const hash = getFileHash(file);
         return deletedImages.has(hash);
     }
-    
-    // Create recover button for recently deleted images
+
+    // Create recover button
     function createRecoverButton(file) {
-        const hash = getFileHash(file);
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'recover-container';
-        
         const recoverBtn = document.createElement('button');
         recoverBtn.className = 'recover-btn';
-        recoverBtn.innerHTML = '<i class="material-icons">restore</i> Recover';
-        
-        recoverBtn.addEventListener('click', function() {
+        recoverBtn.textContent = 'Recover Image';
+        recoverBtn.onclick = () => {
+            const hash = getFileHash(file);
             deletedImages.delete(hash);
             addImageToList(file);
-            buttonContainer.remove();
-            showToast('Image recovered successfully', 'success');
+            showToast('Image recovered', 'success');
+        };
+        return recoverBtn;
+    }
+
+    // Ensure SortableJS is loaded correctly
+    if (typeof Sortable !== 'undefined') {
+        // Initialize SortableJS for drag and drop sorting
+        new Sortable(imageList, {
+            animation: 150,
+            ghostClass: 'sortable-ghost'
         });
-        
-        const countdown = document.createElement('div');
-        countdown.className = 'recover-countdown';
-        
-        buttonContainer.appendChild(recoverBtn);
-        buttonContainer.appendChild(countdown);
-        
-        // Start 10 second countdown
-        let timeLeft = 10;
-        countdown.textContent = `${timeLeft}s`;
-        
-        const timer = setInterval(() => {
-            timeLeft--;
-            countdown.textContent = `${timeLeft}s`;
-            
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                buttonContainer.remove();
-            }
-        }, 1000);
-        
-        return buttonContainer;
+    } else {
+        console.error('Sortable library not loaded correctly!');
     }
     
-    // Prevent default drag and drop behaviors
+    // Handle drag and drop functionality
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
     function preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
     }
-    
-    // Add event listeners for drag and drop
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, preventDefaults, false);
-    });
     
     ['dragenter', 'dragover'].forEach(eventName => {
         uploadArea.addEventListener(eventName, highlight, false);
@@ -172,75 +148,83 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadArea.addEventListener(eventName, unhighlight, false);
     });
     
-    // Highlight drop area
     function highlight() {
         uploadArea.classList.add('highlight');
     }
     
-    // Remove highlight from drop area
     function unhighlight() {
         uploadArea.classList.remove('highlight');
     }
     
-    // Handle drop event
+    // Handle file drop
+    uploadArea.addEventListener('drop', handleDrop, false);
+    
     function handleDrop(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
-        
-        if (files.length > 0) {
-            handleFiles(files);
-        }
+        handleFiles(files);
     }
     
-    uploadArea.addEventListener('drop', handleDrop, false);
+    // Handle file selection
+    fileInput.addEventListener('change', function() {
+        handleFiles(this.files);
+        // Reset input value so the same file can trigger change event again
+        this.value = '';
+    });
     
-    // Handle files from input or drop
+    // Handle uploaded files
     function handleFiles(files) {
-        files = Array.from(files);
+        if (files.length === 0) return;
         
-        // Filter only image files
-        const imageFiles = files.filter(file => file.type.startsWith('image/'));
-        
-        if (imageFiles.length === 0) {
-            showToast('Please select image files only', 'error');
-            return;
+        // If multiple images are uploaded, cancel all existing selections
+        if (files.length > 1) {
+            const existingSelected = document.querySelectorAll('.image-item.selected');
+            existingSelected.forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            isSelectAll = false;
+            if (selectAllBtn) {
+                selectAllBtn.textContent = 'Select All';
+            }
         }
         
-        if (imageFiles.length !== files.length) {
-            showToast(`${files.length - imageFiles.length} non-image files were ignored`, 'warning');
-        }
+        let addedCount = 0;
         
-        // Check if any files are already uploaded
-        const duplicates = imageFiles.filter(file => 
-            uploadedImages.some(img => getFileHash(img) === getFileHash(file)) ||
-            isDeletedImage(file)
-        );
-        
-        if (duplicates.length > 0) {
-            showToast(`${duplicates.length} duplicate images were ignored`, 'warning');
-        }
-        
-        // Filter out duplicates
-        const newFiles = imageFiles.filter(file => 
-            !uploadedImages.some(img => getFileHash(img) === getFileHash(file)) &&
-            !isDeletedImage(file)
-        );
-        
-        // Add new files to list
-        newFiles.forEach(file => {
-            addImageToList(file);
+        Array.from(files).forEach(file => {
+            if (file.type.match('image.*')) {
+                // Check if image was previously deleted
+                if (isDeletedImage(file)) {
+                    const confirmRecover = confirm('This image was previously deleted. Do you want to recover it?');
+                    if (confirmRecover) {
+                        const hash = getFileHash(file);
+                        deletedImages.delete(hash);
+                        addImageToList(file);
+                        showToast('Image recovered', 'success');
+                        addedCount++;
+                    }
+                    return;
+                }
+
+                addImageToList(file);
+                addedCount++;
+                
+                // Show toast for single image upload
+                if (files.length === 1) {
+                    showToast('Image uploaded successfully', 'success');
+                }
+            }
         });
         
-        // Show success message
-        if (newFiles.length > 0) {
-            showToast(`${newFiles.length} images uploaded successfully`, 'success');
-            
-            // Update button states
-            updateButtonState();
+        // Show statistics toast for multiple image upload
+        if (files.length > 1 && addedCount > 0) {
+            showToast(`Successfully added ${addedCount} images`, 'success');
         }
+        
+        updateButtonState();
     }
     
-    // Add image to the list
+    // Add image to preview list
     function addImageToList(file) {
         const reader = new FileReader();
         
@@ -249,551 +233,619 @@ document.addEventListener('DOMContentLoaded', function() {
             img.src = e.target.result;
             
             img.onload = function() {
-                const index = uploadedImages.length;
-                uploadedImages.push(file);
+                const imageIndex = document.querySelectorAll('.image-item').length;
+                const imageData = {
+                    file: file,
+                    src: e.target.result,
+                    width: img.width,
+                    height: img.height,
+                    name: file.name,
+                    rotation: 0
+                };
+                uploadedImages.push(imageData);
                 
                 const imageItem = document.createElement('div');
                 imageItem.className = 'image-item';
-                imageItem.dataset.index = index;
+                imageItem.dataset.index = imageIndex;
                 
-                // Create image container
-                const imageContainer = document.createElement('div');
-                imageContainer.className = 'image-container';
+                // Create image element
+                const imgEl = document.createElement('img');
+                imgEl.src = e.target.result;
+                imgEl.alt = file.name;
                 
-                // Create image element with preview
-                const imagePreview = document.createElement('img');
-                imagePreview.src = e.target.result;
-                imagePreview.alt = file.name;
-                imagePreview.className = 'image-preview';
-                
-                // Make image preview clickable to show full size
-                imagePreview.addEventListener('click', function() {
-                    previewImage(this);
+                // Image click preview functionality
+                imgEl.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent bubble, avoid triggering selection functionality
+                    previewImage(imageData);
                 });
                 
-                // Add checkbox for selection
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'image-checkbox';
-                checkbox.addEventListener('change', function() {
-                    // Update selected state visual
-                    imageItem.classList.toggle('selected', this.checked);
-                    
-                    // Update delete button state
-                    updateDeleteButtonState();
-                });
+                imageItem.appendChild(imgEl);
                 
-                // Create image info section
-                const imageInfo = document.createElement('div');
-                imageInfo.className = 'image-info';
-                
-                // Show image name (truncated if too long)
-                const fileName = file.name.length > 20 
-                    ? file.name.substring(0, 17) + '...' 
-                    : file.name;
-                
-                // Show image dimensions
-                const imageDimensions = document.createElement('span');
-                imageDimensions.className = 'image-dimensions';
-                imageDimensions.textContent = `${img.width} × ${img.height}`;
-                
-                // Create image controls
-                const imageControls = document.createElement('div');
-                imageControls.className = 'image-controls';
-                
-                // Rotation controls
-                const rotateLeft = document.createElement('button');
-                rotateLeft.className = 'rotate-btn';
-                rotateLeft.innerHTML = '<i class="material-icons">rotate_left</i>';
-                rotateLeft.title = 'Rotate left';
-                rotateLeft.addEventListener('click', function() {
-                    rotateImage(index, -90);
-                });
-                
-                const rotateRight = document.createElement('button');
-                rotateRight.className = 'rotate-btn';
-                rotateRight.innerHTML = '<i class="material-icons">rotate_right</i>';
-                rotateRight.title = 'Rotate right';
-                rotateRight.addEventListener('click', function() {
-                    rotateImage(index, 90);
-                });
-                
-                // Delete button
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = '<i class="material-icons">delete</i>';
-                deleteBtn.title = 'Delete';
-                deleteBtn.addEventListener('click', function() {
+                // Create delete button
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.innerHTML = '<i class="material-icons">close</i>';
+                removeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
                     removeImage(imageItem, file);
                 });
                 
-                // Assemble the controls
-                imageControls.appendChild(rotateLeft);
-                imageControls.appendChild(rotateRight);
-                imageControls.appendChild(deleteBtn);
+                // Create rotation control area
+                const rotateControls = document.createElement('div');
+                rotateControls.className = 'rotate-controls';
                 
-                // Assemble the file name and dimensions
-                const fileNameElement = document.createElement('span');
-                fileNameElement.className = 'image-name';
-                fileNameElement.textContent = fileName;
-                fileNameElement.title = file.name; // Full name on hover
+                // Create rotation button
+                const rotateLeftBtn = document.createElement('button');
+                rotateLeftBtn.className = 'rotate-btn left';
+                rotateLeftBtn.textContent = 'Left';
+                rotateLeftBtn.title = 'Rotate 90° Left';
+                rotateLeftBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(imageItem.dataset.index);
+                    rotateImage(index, -90);
+                });
                 
-                imageInfo.appendChild(fileNameElement);
-                imageInfo.appendChild(imageDimensions);
+                // Create right rotate button
+                const rotateRightBtn = document.createElement('button');
+                rotateRightBtn.className = 'rotate-btn right';
+                rotateRightBtn.textContent = 'Right';
+                rotateRightBtn.title = 'Rotate 90° Right';
+                rotateRightBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(imageItem.dataset.index);
+                    rotateImage(index, 90);
+                });
                 
-                // Assemble the image container
-                imageContainer.appendChild(imagePreview);
-                imageContainer.appendChild(checkbox);
+                rotateControls.appendChild(rotateLeftBtn);
+                rotateControls.appendChild(rotateRightBtn);
                 
-                // Assemble the entire image item
-                imageItem.appendChild(imageContainer);
-                imageItem.appendChild(imageInfo);
-                imageItem.appendChild(imageControls);
+                // Add rotation control area to image item
+                imageItem.appendChild(rotateControls);
+                imageItem.appendChild(removeBtn);
                 
-                // Add to UI
                 imageList.appendChild(imageItem);
                 
-                // Show select all button if we have images
-                selectAllBtn.classList.remove('hidden');
-                
-                // Update rotation state tracking
-                imageItem.dataset.rotation = '0';
+                updateButtonState();
+                updateDeleteButtonState();
             };
         };
         
         reader.readAsDataURL(file);
     }
     
-    // Function to rotate image
+    // Add rotated image function
     function rotateImage(index, degrees) {
-        // Get image element
-        const imageItem = document.querySelector(`.image-item[data-index="${index}"]`);
-        const imagePreview = imageItem.querySelector('.image-preview');
+        if (index < 0 || index >= uploadedImages.length) return;
         
-        // Calculate new rotation value
-        const currentRotation = parseInt(imageItem.dataset.rotation || '0');
-        const newRotation = (currentRotation + degrees) % 360;
+        // Update image rotation angle
+        uploadedImages[index].rotation = (uploadedImages[index].rotation + degrees) % 360;
         
-        // Update data attribute
-        imageItem.dataset.rotation = newRotation;
+        // If negative, convert to equivalent positive
+        if (uploadedImages[index].rotation < 0) {
+            uploadedImages[index].rotation += 360;
+        }
         
-        // Apply rotation with CSS transform
-        imagePreview.style.transform = `rotate(${newRotation}deg)`;
-        
-        // If rotation is 90 or 270 degrees, swap width/height constraints
-        if (newRotation % 180 !== 0) {
-            imagePreview.classList.add('rotated');
-        } else {
-            imagePreview.classList.remove('rotated');
+        // Update image style
+        const imageItems = document.querySelectorAll('.image-item');
+        if (index < imageItems.length) {
+            const img = imageItems[index].querySelector('img');
+            if (img) {
+                img.style.transform = `rotate(${uploadedImages[index].rotation}deg)`;
+            }
         }
     }
     
-    // Update button states based on uploaded images
+    // Update button state
     function updateButtonState() {
-        if (uploadedImages.length > 0) {
+        const hasImages = uploadedImages.length > 0;
+        console.log('Update button state:', { hasImages, imagesCount: uploadedImages.length });
+        
+        // Ensure button is enabled
+        if (hasImages) {
             convertBtn.disabled = false;
             clearBtn.disabled = false;
+            selectAllBtn.disabled = false;
+            deleteSelectedBtn.disabled = false;
+            
+            // Show select all and delete selected buttons
             selectAllBtn.classList.remove('hidden');
+            deleteSelectedBtn.classList.remove('hidden');
             
-            // Check if any images are selected
-            const hasSelectedImages = Array.from(
-                document.querySelectorAll('.image-checkbox')
-            ).some(checkbox => checkbox.checked);
-            
-            if (hasSelectedImages) {
-                deleteSelectedBtn.classList.remove('hidden');
-            } else {
-                deleteSelectedBtn.classList.add('hidden');
-            }
+            // Remove possible added disabled class
+            convertBtn.classList.remove('disabled');
+            clearBtn.classList.remove('disabled');
+            selectAllBtn.classList.remove('disabled');
+            deleteSelectedBtn.classList.remove('disabled');
         } else {
             convertBtn.disabled = true;
             clearBtn.disabled = true;
+            selectAllBtn.disabled = true;
+            deleteSelectedBtn.disabled = true;
+            
+            // Hide select all and delete selected buttons
             selectAllBtn.classList.add('hidden');
             deleteSelectedBtn.classList.add('hidden');
         }
     }
     
-    // File input change handler
-    fileInput.addEventListener('change', function() {
-        if (this.files.length > 0) {
-            handleFiles(this.files);
-            this.value = ''; // Reset input to allow selecting the same files again
-        }
+    // Ensure generate PDF button has click event
+    convertBtn.addEventListener('click', function(e) {
+        console.log('Generate PDF button clicked');
+        generatePDF();
     });
     
-    // Click handler for the upload area
-    uploadArea.addEventListener('click', function(e) {
-        // Prevent click from triggering if user is interacting with a child element
-        if (e.target === uploadArea || e.target.closest('.upload-btn') || e.target.closest('.upload-icon') || e.target === uploadArea.querySelector('p')) {
-            fileInput.click();
-        }
-    });
-    
-    // Generate PDF
     function generatePDF() {
-        // Get selected images or all if none selected
-        const checkboxes = Array.from(document.querySelectorAll('.image-checkbox'));
-        const selectedIndices = checkboxes
-            .filter(checkbox => checkbox.checked)
-            .map(checkbox => parseInt(checkbox.closest('.image-item').dataset.index));
+        if (uploadedImages.length === 0) return;
         
-        // Use selected images or all if none selected
-        const imagesToProcess = selectedIndices.length > 0 
-            ? selectedIndices.map(index => ({
-                file: uploadedImages[index],
-                rotation: parseInt(document.querySelector(`.image-item[data-index="${index}"]`).dataset.rotation || '0')
-            }))
-            : uploadedImages.map((file, index) => ({
-                file,
-                rotation: parseInt(document.querySelector(`.image-item[data-index="${index}"]`).dataset.rotation || '0')
-            }));
+        // Get selected image items
+        const selectedItems = document.querySelectorAll('.image-item.selected');
         
-        if (imagesToProcess.length === 0) {
-            showToast('No images to convert', 'error');
-            return;
+        // If there are selected images, process only selected images; otherwise, process all images
+        let itemsToProcess;
+        if (selectedItems.length > 0) {
+            itemsToProcess = selectedItems;
+        } else {
+            itemsToProcess = document.querySelectorAll('.image-item');
         }
         
-        // Show loading state
-        const loadingToast = document.createElement('div');
-        loadingToast.className = 'toast loading';
-        loadingToast.innerHTML = `
-            <div class="loading-spinner"></div>
-            <span>Processing images... </span>
-            <span class="progress-text">0/${imagesToProcess.length}</span>
-        `;
-        toastContainer.appendChild(loadingToast);
+        // Get sorted image list
+        const sortedImages = Array.from(itemsToProcess).map(item => {
+            const index = parseInt(item.dataset.index);
+            return uploadedImages[index];
+        });
         
-        // Get document
-        if (typeof jspdf !== 'undefined' || window.jspdf) {
-            const { jsPDF } = window.jspdf || window.jspdf;
-            
-            // Check if jsPDF is available
-            if (typeof jsPDF === 'function') {
-                try {
-                    // Create PDF document
-                    const doc = new jsPDF();
-                    let currentPage = 1;
-                    const progressText = loadingToast.querySelector('.progress-text');
-                    
-                    // Process images sequentially
-                    const processImages = async () => {
-                        for (let i = 0; i < imagesToProcess.length; i++) {
-                            // Update progress
-                            progressText.textContent = `${i+1}/${imagesToProcess.length}`;
+        // Show loading status
+        convertBtn.disabled = true;
+        convertBtn.textContent = 'Processing...';
+        
+        // Use setTimeout to allow UI update
+        setTimeout(() => {
+            try {
+                // Check if jsPDF is loaded correctly
+                if (typeof window.jspdf === 'undefined') {
+                    console.error('jsPDF library not loaded correctly!');
+                    alert('PDF generation component not loaded correctly, please check network connection and refresh page to try again.');
+                    convertBtn.textContent = 'Generate PDF';
+                    convertBtn.disabled = false;
+                    return;
+                }
+                
+                // Use jsPDF to create PDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
+                
+                // Process each image
+                const processImages = async () => {
+                    try {
+                        for (let i = 0; i < sortedImages.length; i++) {
+                            const img = sortedImages[i];
                             
-                            // Get current image data
-                            const { file, rotation } = imagesToProcess[i];
+                            // If not first page, add new page
+                            if (i > 0) {
+                                pdf.addPage();
+                            }
                             
-                            // Create a promise to load the image
-                            const imageDataPromise = new Promise((resolve, reject) => {
-                                const reader = new FileReader();
-                                reader.onload = function(e) {
-                                    const img = new Image();
-                                    img.onload = function() {
-                                        resolve({ img, result: e.target.result });
-                                    };
-                                    img.onerror = reject;
-                                    img.src = e.target.result;
-                                };
-                                reader.onerror = reject;
-                                reader.readAsDataURL(file);
-                            });
+                            // Calculate best fit page size
+                            const pageWidth = pdf.internal.pageSize.getWidth();
+                            const pageHeight = pdf.internal.pageSize.getHeight();
                             
-                            try {
-                                // Wait for image to load
-                                const { img, result } = await imageDataPromise;
+                            // If rotated, create temporary canvas for processing rotated image
+                            if (img.rotation !== 0) {
+                                const tempImg = new Image();
+                                tempImg.src = img.src;
                                 
-                                // Get dimensions
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                
+                                // Set canvas size based on rotation angle
+                                let canvasWidth, canvasHeight;
+                                
+                                if (img.rotation === 90 || img.rotation === 270) {
+                                    // If rotated 90 or 270 degrees, swap width and height
+                                    canvasWidth = img.height;
+                                    canvasHeight = img.width;
+                                } else {
+                                    canvasWidth = img.width;
+                                    canvasHeight = img.height;
+                                }
+                                
+                                canvas.width = canvasWidth;
+                                canvas.height = canvasHeight;
+                                
+                                // Rotate image in canvas center
+                                ctx.save();
+                                ctx.translate(canvasWidth / 2, canvasHeight / 2);
+                                ctx.rotate((img.rotation * Math.PI) / 180);
+                                ctx.drawImage(
+                                    tempImg,
+                                    -img.width / 2,
+                                    -img.height / 2,
+                                    img.width,
+                                    img.height
+                                );
+                                ctx.restore();
+                                
+                                // Calculate rotated image size
+                                let displayWidth = canvasWidth;
+                                let displayHeight = canvasHeight;
+                                
+                                // Fit to page size
+                                const ratio = Math.min(
+                                    pageWidth / displayWidth,
+                                    pageHeight / displayHeight
+                                );
+                                
+                                displayWidth *= ratio;
+                                displayHeight *= ratio;
+                                
+                                // Center image
+                                const x = (pageWidth - displayWidth) / 2;
+                                const y = (pageHeight - displayHeight) / 2;
+                                
+                                // Add canvas to PDF
+                                const imgData = canvas.toDataURL('image/jpeg');
+                                pdf.addImage(imgData, 'JPEG', x, y, displayWidth, displayHeight);
+                            } else {
+                                // If not rotated, process original image directly
                                 let imgWidth = img.width;
                                 let imgHeight = img.height;
                                 
-                                // If rotated by 90 or 270 degrees, swap dimensions
-                                if (rotation % 180 !== 0) {
-                                    [imgWidth, imgHeight] = [imgHeight, imgWidth];
-                                }
+                                // Fit to page size
+                                const ratio = Math.min(
+                                    pageWidth / imgWidth,
+                                    pageHeight / imgHeight
+                                );
                                 
-                                // Calculate page size to fit the image
-                                const pageWidth = doc.internal.pageSize.getWidth();
-                                const pageHeight = doc.internal.pageSize.getHeight();
+                                imgWidth *= ratio;
+                                imgHeight *= ratio;
                                 
-                                // Scale image to fit page while maintaining aspect ratio
-                                let finalWidth = imgWidth;
-                                let finalHeight = imgHeight;
-                                
-                                const ratio = imgWidth / imgHeight;
-                                
-                                if (finalWidth > pageWidth) {
-                                    finalWidth = pageWidth - 20; // 10px margin on each side
-                                    finalHeight = finalWidth / ratio;
-                                }
-                                
-                                if (finalHeight > pageHeight) {
-                                    finalHeight = pageHeight - 20; // 10px margin on top/bottom
-                                    finalWidth = finalHeight * ratio;
-                                }
-                                
-                                // Center image on page
-                                const xOffset = (pageWidth - finalWidth) / 2;
-                                const yOffset = (pageHeight - finalHeight) / 2;
-                                
-                                // Add new page for each image after the first one
-                                if (i > 0) {
-                                    doc.addPage();
-                                    currentPage++;
-                                }
+                                // Center image
+                                const x = (pageWidth - imgWidth) / 2;
+                                const y = (pageHeight - imgHeight) / 2;
                                 
                                 // Add image to PDF
-                                if (rotation !== 0) {
-                                    // For rotated images, we need to use a canvas
-                                    const canvas = document.createElement('canvas');
-                                    const ctx = canvas.getContext('2d');
-                                    
-                                    // Adjust canvas size based on rotation
-                                    if (rotation % 180 !== 0) {
-                                        canvas.width = img.height;
-                                        canvas.height = img.width;
-                                    } else {
-                                        canvas.width = img.width;
-                                        canvas.height = img.height;
-                                    }
-                                    
-                                    // Move to center of canvas
-                                    ctx.translate(canvas.width / 2, canvas.height / 2);
-                                    
-                                    // Rotate context
-                                    ctx.rotate(rotation * Math.PI / 180);
-                                    
-                                    // Draw image centered
-                                    ctx.drawImage(img, -img.width / 2, -img.height / 2);
-                                    
-                                    // Get data URL from canvas
-                                    const rotatedImgData = canvas.toDataURL('image/jpeg');
-                                    
-                                    // Add to PDF
-                                    doc.addImage(rotatedImgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight);
-                                } else {
-                                    // No rotation, add image directly
-                                    doc.addImage(result, 'JPEG', xOffset, yOffset, finalWidth, finalHeight);
-                                }
-                            } catch (err) {
-                                console.error('Error processing image:', err);
-                                showToast(`Error processing image ${file.name}`, 'error');
+                                pdf.addImage(img.src, 'JPEG', x, y, imgWidth, imgHeight);
                             }
                         }
                         
-                        // Save the PDF
-                        const fileName = imagesToProcess.length === 1 
-                            ? `${imagesToProcess[0].file.name.split('.')[0]}.pdf`
-                            : `vvchange_images_${new Date().toISOString().slice(0, 10)}.pdf`;
+                        // Use first image name as PDF file name
+                        let fileName = 'Image Conversion.pdf'; // Default file name
+                        if (sortedImages.length > 0 && sortedImages[0].name) {
+                            // Remove extension, add .pdf
+                            const baseName = sortedImages[0].name.replace(/\.[^/.]+$/, "");
+                            fileName = baseName + '.pdf';
+                        }
                         
-                        doc.save(fileName);
-                        
-                        // Remove loading toast
-                        toastContainer.removeChild(loadingToast);
-                        
-                        // Show success message
-                        showToast(`PDF created with ${imagesToProcess.length} images`, 'success');
-                        
-                        // Uncheck all checkboxes after conversion
-                        const checkboxes = document.querySelectorAll('.image-checkbox');
-                        checkboxes.forEach(checkbox => {
-                            checkbox.checked = false;
-                        });
-                        
-                        // Update UI state
-                        isSelectAll = false;
-                        selectAllBtn.textContent = 'Select All';
-                        
-                        // Remove selected class from all items
-                        document.querySelectorAll('.image-item').forEach(item => {
-                            item.classList.remove('selected');
-                        });
-                        
-                        // Update button states
-                        updateButtonState();
-                    };
-                    
-                    // Start processing images
-                    processImages();
-                    
-                } catch (err) {
-                    console.error('Error creating PDF:', err);
-                    toastContainer.removeChild(loadingToast);
-                    showToast('Error creating PDF. Please try again.', 'error');
-                }
-            } else {
-                showToast('PDF generation library not loaded properly. Please refresh the page.', 'error');
+                        // Save PDF
+                        pdf.save(fileName);
+                    } catch (err) {
+                        console.error('Error processing image:', err);
+                        alert('Error occurred while generating PDF: ' + err.message);
+                    } finally {
+                        // Restore button state
+                        convertBtn.textContent = 'Generate PDF';
+                        convertBtn.disabled = false;
+                    }
+                };
+                
+                processImages();
+            } catch (err) {
+                console.error('PDF generation error:', err);
+                alert('Error occurred while generating PDF: ' + err.message);
+                // Restore button state
+                convertBtn.textContent = 'Generate PDF';
+                convertBtn.disabled = false;
             }
-        } else {
-            showToast('PDF generation library not loaded. Please refresh the page.', 'error');
-        }
+        }, 100);
     }
     
-    // Update delete button state
-    function updateDeleteButtonState() {
-        const hasSelectedImages = Array.from(
-            document.querySelectorAll('.image-checkbox')
-        ).some(checkbox => checkbox.checked);
-        
-        if (hasSelectedImages) {
-            deleteSelectedBtn.classList.remove('hidden');
-        } else {
-            deleteSelectedBtn.classList.add('hidden');
-        }
-    }
-    
-    // Clear all images
-    clearBtn.addEventListener('click', function() {
-        // Clear all images
-        imageList.innerHTML = '';
-        uploadedImages.length = 0;
-        
-        // Reset button states
-        updateButtonState();
-        
-        showToast('All images cleared', 'info');
-    });
-    
-    // Select all images
+    // Select all button click event
     selectAllBtn.addEventListener('click', function() {
         isSelectAll = !isSelectAll;
+        const imageItems = document.querySelectorAll('.image-item');
         
-        const checkboxes = document.querySelectorAll('.image-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = isSelectAll;
-            checkbox.closest('.image-item').classList.toggle('selected', isSelectAll);
+        imageItems.forEach(item => {
+            if (isSelectAll) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
         });
         
-        // Update button text
-        this.innerHTML = isSelectAll 
-            ? '<i class="material-icons">deselect</i> Deselect All'
-            : '<i class="material-icons">select_all</i> Select All';
-        
+        // Update button text and state
+        selectAllBtn.textContent = isSelectAll ? 'Cancel Select All' : 'Select All';
         updateDeleteButtonState();
     });
     
-    // Preview image in large view
-    function previewImage(image) {
-        // Create overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'preview-overlay';
+    // Delete selected images button click event
+    deleteSelectedBtn.addEventListener('click', function() {
+        // Get all selected image items
+        const selectedItems = document.querySelectorAll('.image-item.selected');
         
-        // Create image container
-        const container = document.createElement('div');
-        container.className = 'preview-container';
+        // If no images are selected, return
+        if (selectedItems.length === 0) return;
         
-        // Create image element
-        const previewImg = document.createElement('img');
-        previewImg.src = image.src;
-        previewImg.className = 'preview-image';
+        // Get all selected item indices (sorted from largest to smallest to avoid affecting other indices when deleting)
+        const selectedIndices = Array.from(selectedItems)
+            .map(item => parseInt(item.dataset.index))
+            .sort((a, b) => b - a); // Sort from largest to smallest
         
-        // Get rotation from original image
-        const imageItem = image.closest('.image-item');
-        const rotation = imageItem ? parseInt(imageItem.dataset.rotation || '0') : 0;
-        
-        // Apply rotation to preview
-        previewImg.style.transform = `rotate(${rotation}deg)`;
-        
-        // Add close button
-        const closeBtn = document.createElement('button');
-        closeBtn.className = 'preview-close';
-        closeBtn.innerHTML = '<i class="material-icons">close</i>';
-        
-        // Handle close
-        function closePreview() {
-            document.body.removeChild(overlay);
-            document.body.classList.remove('no-scroll');
-        }
-        
-        closeBtn.addEventListener('click', closePreview);
-        
-        // Close on overlay click
-        overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) {
-                closePreview();
+        // Delete images in descending order of index (to avoid deleting previous items affecting subsequent item indices)
+        selectedIndices.forEach(index => {
+            if (index >= 0 && index < uploadedImages.length) {
+                // Delete from array
+                uploadedImages.splice(index, 1);
+                // Delete from DOM
+                const itemToRemove = document.querySelector(`.image-item[data-index="${index}"]`);
+                if (itemToRemove) {
+                    itemToRemove.remove();
+                }
             }
         });
         
-        // Close on ESC key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closePreview();
-            }
-        }, { once: true });
-        
-        // Prevent body scrolling
-        document.body.classList.add('no-scroll');
-        
-        // Assemble preview
-        container.appendChild(previewImg);
-        overlay.appendChild(closeBtn);
-        overlay.appendChild(container);
-        document.body.appendChild(overlay);
-    }
-    
-    // Delete selected images
-    deleteSelectedBtn.addEventListener('click', function() {
-        const selectedItems = Array.from(
-            document.querySelectorAll('.image-item')
-        ).filter(item => 
-            item.querySelector('.image-checkbox').checked
-        );
-        
-        if (selectedItems.length === 0) {
-            showToast('No images selected', 'warning');
-            return;
-        }
-        
-        // Remove each selected image
-        selectedItems.forEach(item => {
-            const index = parseInt(item.dataset.index);
-            const file = uploadedImages[index];
-            removeImage(item, file);
+        // Update remaining image indices
+        const remainingItems = document.querySelectorAll('.image-item');
+        remainingItems.forEach((item, i) => {
+            item.dataset.index = i;
         });
         
         // Reset select all state
         isSelectAll = false;
-        selectAllBtn.innerHTML = '<i class="material-icons">select_all</i> Select All';
+        selectAllBtn.textContent = 'Select All';
         
-        showToast(`${selectedItems.length} images deleted`, 'success');
-        
-        // Hide delete button
-        deleteSelectedBtn.classList.add('hidden');
+        // Update button state
+        updateButtonState();
+        updateDeleteButtonState();
     });
     
-    // Remove image function
-    function removeImage(imageItem, file) {
-        const index = parseInt(imageItem.dataset.index);
+    // Image click select/unselect
+    imageList.addEventListener('click', function(e) {
+        const imageItem = e.target.closest('.image-item');
+        if (!imageItem) return;
         
-        // Add to deleted images map
+        // If clicked is button, do not trigger select
+        if (e.target.closest('.remove-btn') || e.target.closest('.rotate-controls') || e.target.tagName === 'IMG') {
+            return;
+        }
+        
+        imageItem.classList.toggle('selected');
+        updateDeleteButtonState();
+        
+        // Update select all button state
+        const totalImages = document.querySelectorAll('.image-item').length;
+        const selectedImages = document.querySelectorAll('.image-item.selected').length;
+        isSelectAll = totalImages === selectedImages;
+        selectAllBtn.textContent = isSelectAll ? 'Cancel Select All' : 'Select All';
+    });
+    
+    // Update delete button state
+    function updateDeleteButtonState() {
+        const selectedCount = document.querySelectorAll('.image-item.selected').length;
+        deleteSelectedBtn.disabled = selectedCount === 0;
+    }
+    
+    // Clear all images
+    clearBtn.addEventListener('click', function() {
+        // Clear image array
+        uploadedImages.length = 0;
+        
+        // Clear image list DOM, but keep event listeners
+        while (imageList.firstChild) {
+            imageList.removeChild(imageList.firstChild);
+        }
+        
+        // Reset select state
+        isSelectAll = false;
+        selectAllBtn.textContent = 'Select All';
+        
+        // Hide select all and delete selected buttons
+        selectAllBtn.classList.add('hidden');
+        deleteSelectedBtn.classList.add('hidden');
+        
+        updateButtonState();
+        updateDeleteButtonState();
+    });
+
+    // Preview image functionality
+    function previewImage(image) {
+        // Create preview modal
+        const modal = document.createElement('div');
+        modal.className = 'image-preview-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+            box-sizing: border-box;
+        `;
+        
+        // Create preview container
+        const previewContainer = document.createElement('div');
+        previewContainer.className = 'preview-container';
+        previewContainer.style.cssText = `
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        `;
+        
+        // Create image title
+        const titleBar = document.createElement('div');
+        titleBar.style.cssText = `
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        `;
+        
+        const title = document.createElement('h3');
+        title.textContent = image.name || 'Image Preview';
+        title.style.cssText = `
+            margin: 0;
+            color: #333;
+            font-size: 18px;
+            font-weight: 500;
+        `;
+        
+        // Close button
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '<i class="material-icons">close</i>';
+        closeBtn.style.cssText = `
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        `;
+        closeBtn.addEventListener('mouseover', function() {
+            this.style.color = '#e53935';
+        });
+        closeBtn.addEventListener('mouseout', function() {
+            this.style.color = '#999';
+        });
+        
+        closeBtn.addEventListener('click', function() {
+            document.body.removeChild(modal);
+        });
+        
+        titleBar.appendChild(title);
+        titleBar.appendChild(closeBtn);
+        
+        // Create image container
+        const imageContainer = document.createElement('div');
+        imageContainer.style.cssText = `
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+        `;
+        
+        // Create image element
+        const img = document.createElement('img');
+        img.src = image.src;
+        img.alt = image.name || 'Preview Image';
+        img.style.cssText = `
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            transform: rotate(${image.rotation || 0}deg);
+        `;
+        
+        imageContainer.appendChild(img);
+        
+        // Create image information
+        const infoContainer = document.createElement('div');
+        infoContainer.style.cssText = `
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+        `;
+        
+        const dimensions = document.createElement('span');
+        dimensions.textContent = `Dimensions: ${image.width} × ${image.height} pixels`;
+        
+        infoContainer.appendChild(dimensions);
+        
+        // Create download button
+        const downloadBtn = document.createElement('button');
+        downloadBtn.innerHTML = '<i class="material-icons">file_download</i> Download Image';
+        downloadBtn.style.cssText = `
+            padding: 8px 16px;
+            background: linear-gradient(to right, #e53935, #f44336);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 15px;
+            align-self: center;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(229, 57, 53, 0.3);
+            transition: all 0.2s;
+        `;
+        
+        downloadBtn.addEventListener('mouseover', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 4px 8px rgba(229, 57, 53, 0.4)';
+        });
+        
+        downloadBtn.addEventListener('mouseout', function() {
+            this.style.transform = '';
+            this.style.boxShadow = '0 2px 5px rgba(229, 57, 53, 0.3)';
+        });
+        
+        downloadBtn.addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.href = image.src;
+            link.download = image.name || 'download.jpg';
+            link.click();
+        });
+        
+        // Add elements to preview container
+        previewContainer.appendChild(titleBar);
+        previewContainer.appendChild(imageContainer);
+        previewContainer.appendChild(infoContainer);
+        previewContainer.appendChild(downloadBtn);
+        
+        // Add preview container to modal
+        modal.appendChild(previewContainer);
+        
+        // Click modal background to close
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+        
+        // Add modal to body
+        document.body.appendChild(modal);
+    }
+
+    // Modify delete image processing
+    function removeImage(imageItem, file) {
         const hash = getFileHash(file);
         deletedImages.set(hash, {
             file: file,
-            timestamp: Date.now()
+            timestamp: new Date().getTime()
         });
         
-        // Remove from array
-        uploadedImages.splice(index, 1);
+        const index = parseInt(imageItem.dataset.index);
+        if (index >= 0 && index < uploadedImages.length) {
+            uploadedImages.splice(index, 1);
+            
+            // Update remaining image indices
+            const remainingItems = document.querySelectorAll('.image-item');
+            remainingItems.forEach((item, i) => {
+                item.dataset.index = i;
+            });
+        }
         
-        // Remove from DOM
-        imageItem.remove();
-        
-        // Create recover button
-        const recoverButton = createRecoverButton(file);
-        imageList.appendChild(recoverButton);
-        
-        // Update indices of remaining items
-        document.querySelectorAll('.image-item').forEach((item, i) => {
-            item.dataset.index = i;
-        });
-        
-        // Update button states
+        imageList.removeChild(imageItem);
         updateButtonState();
-        
-        // Show toast
-        showToast('Image removed. Click Recover to undo.', 'info');
+        updateDeleteButtonState();
+        showToast('Image deleted, can be re-uploaded to recover', 'info');
     }
-    
-    // Generate PDF button click handler
-    convertBtn.addEventListener('click', generatePDF);
 }); 

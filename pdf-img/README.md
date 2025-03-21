@@ -1,45 +1,45 @@
-# PDF转图片工具
+# PDF to Image Tool
 
-一个简单而强大的在线PDF转图片工具，无需下载任何软件即可将PDF文件转换为高质量图片。
+A simple yet powerful online tool to convert PDF files to high-quality images without the need to download any software.
 
-## 功能特点
+## Features
 
-- 支持拖放上传PDF文件
-- 支持多格式输出 (JPG/PNG)
-- 支持调整图片质量和分辨率
-- 支持选择性转换特定页面
-- 支持批量下载转换后的图片
-- 响应式设计，适配移动和桌面设备
-- 完全在浏览器中处理，无需上传到服务器
-- 无文件大小限制（取决于您的浏览器性能）
+- Support drag and drop PDF file upload
+- Support multiple output formats (JPG/PNG)
+- Support adjusting image quality and resolution
+- Support selective conversion of specific pages
+- Support batch download of converted images
+- Responsive design, compatible with mobile and desktop devices
+- All processing is done in the browser, no need to upload to a server
+- No file size limit (depends on your browser performance)
 
-## 使用方法
+## Usage
 
-1. 拖放PDF文件到上传区域或点击"选择PDF文件"按钮
-2. 等待PDF预览加载完成
-3. 设置所需的图片格式、质量和分辨率
-4. 选择是否转换所有页面或指定页面范围
-5. 点击"转换为图片"按钮
-6. 查看转换结果并下载所需图片
+1. Drag and drop the PDF file into the upload area or click the "Select PDF File" button
+2. Wait for the PDF preview to load
+3. Set the desired image format, quality, and resolution
+4. Choose whether to convert all pages or a specific range of pages
+5. Click the "Convert to Image" button
+6. View the conversion results and download the desired image
 
-## 技术实现
+## Technical Implementation
 
-- 使用PDF.js处理PDF文件
-- 使用Canvas API将PDF页面渲染为图片
-- 使用JSZip实现批量下载功能
-- 纯前端实现，所有处理均在客户端完成
+- Use PDF.js to process PDF files
+- Use Canvas API to render PDF pages as images
+- Use JSZip to implement batch download functionality
+- All processing is done in the client, no need to upload to a server
 
-## 注意事项
+## Notes
 
-- 大型PDF文件处理可能需要较长时间
-- 高DPI设置可能会导致内存占用增加
-- 建议使用现代浏览器以获得最佳体验
+- Large PDF files may take a long time to process
+- High DPI settings may increase memory usage
+- It's recommended to use a modern browser for the best experience
 
-## 浏览器兼容性
+## Browser Compatibility
 
-- Chrome (推荐)
+- Chrome (recommended)
 - Firefox
 - Edge
 - Safari
 
-© 2025 vvChange-智能转换工具 
+© 2025 vvChange - Smart Conversion Tools 

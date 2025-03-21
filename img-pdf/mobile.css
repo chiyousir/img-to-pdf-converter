@@ -1,11 +1,11 @@
-/* 移动端适配样式 */
+/* Mobile adaptation styles */
 
-/* 确保基本字符编码正确 */
+/* Ensure correct basic character encoding */
 @charset "UTF-8";
 
-/* 平板和手机设备 */
+/* Tablet and mobile devices */
 @media (max-width: 768px) {
-    /* 移动端图片项布局 */
+    /* Mobile image item layout */
     .image-item {
         position: relative;
         display: flex;
@@ -22,7 +22,7 @@
         flex: 1;
     }
     
-    /* 旋转按钮样式优化 */
+    /* Rotation button style optimization */
     .rotate-btn {
         min-width: 45px;
         height: 28px;
@@ -31,7 +31,7 @@
         color: #666666;
     }
     
-    /* 其他移动端样式 */
+    /* Other mobile styles */
     .container {
         padding: 20px;
         margin: 10px;
@@ -105,7 +105,7 @@
     }
 }
 
-/* 小屏幕手机设备 */
+/* Small screen mobile devices */
 @media (max-width: 480px) {
     body {
         padding: 0;
