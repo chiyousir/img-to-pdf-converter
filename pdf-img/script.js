@@ -5,7 +5,7 @@ if (typeof pdfjsLib === 'undefined') {
 
 // Initialize PDF.js Worker
 if (pdfjsLib) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'libs/pdf.worker.min.js';
 }
 
 // Main DOM elements
