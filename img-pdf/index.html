@@ -1,38 +1,57 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vvChange智能转换工具 - 图片转PDF在线工具</title>
-    <meta name="description" content="vvChange在线图片转PDF工具，免费将JPG、PNG等图片格式转换为PDF文件。支持批量转换、图片旋转、排序和预览，无需安装软件即可在线完成转换。">
-    <meta name="keywords" content="图片转PDF,JPG转PDF,PNG转PDF,在线转换工具,免费PDF转换,图片合并PDF,批量转换,在线PDF工具,vvChange,图片处理,文件转换">
+    <title>vvChange Smart Conversion Tool - Image to PDF Online Tool</title>
+    <meta name="description" content="vvChange online Image to PDF tool, free conversion of JPG, PNG and other image formats to PDF files. Supports batch conversion, image rotation, sorting and preview, convert online without installing software.">
+    <meta name="keywords" content="Image to PDF,JPG to PDF,PNG to PDF,Online conversion tool,Free PDF conversion,Image merge PDF,Batch conversion,Online PDF tool,vvChange,Image processing,File conversion">
     <meta name="author" content="vvChange">
     <meta name="robots" content="index, follow">
     
-    <!-- Open Graph / 社交媒体分享 -->
-    <meta property="og:title" content="vvChange - 免费在线图片转PDF工具">
-    <meta property="og:description" content="将多张图片快速合并转换为PDF文件，支持旋转、排序和预览，操作简单高效。">
+    <!-- Open Graph / Social Media Sharing -->
+    <meta property="og:title" content="vvChange - Free Online Image to PDF Tool">
+    <meta property="og:description" content="Quickly merge and convert multiple images to PDF files, supports rotation, sorting and preview, simple and efficient operation.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.vvchange.top/img-pdf/">
     
-    <!-- 规范链接 -->
+    <!-- Canonical Link -->
     <link rel="canonical" href="https://www.vvchange.top/img-pdf/">
+    
+    <!-- Structured Data / Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "vvChange Image to PDF Converter",
+      "url": "https://www.vvchange.top/img-pdf/",
+      "description": "Free online tool to convert JPG, PNG and other image formats to PDF files.",
+      "applicationCategory": "File Converter",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0"
+      }
+    }
+    </script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T56Z1TK03V"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-T56Z1TK03V');
+    </script>
     
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
     <!-- Material Icons -->
     <link rel="stylesheet" href="fonts/material-icons.css">
-    <script>
-        var _hmt = _hmt || [];
-        (function() {
-          var hm = document.createElement("script");
-          hm.src = "https://hm.baidu.com/hm.js?04fbfcd60712cf050a0a765c96e3b79c";
-          var s = document.getElementsByTagName("script")[0]; 
-          s.parentNode.insertBefore(hm, s);
-        })();
-    </script>
     
-    <!-- 预先加载必要的库 -->
+    
+    <!-- Preload necessary libraries -->
     <script src="libs/jspdf.umd.min.js"></script>
     <script src="libs/Sortable.min.js"></script>
     <style>
@@ -91,87 +110,88 @@
 </head>
 <body>
     <div class="nav-bar">
-        <a href="../index.html" class="nav-logo">VVChange - 图片转PDF</a>
+        <a href="../index.html" class="nav-logo">VVChange - Image to PDF</a>
         <div class="nav-links">
-            <a href="../index.html" class="nav-link">主页</a>
-            <a href="../index.html#tools-section" class="nav-link">工具转换</a>
+            <a href="../index.html" class="nav-link">Home</a>
+            <a href="../index.html#tools-section" class="nav-link">Tools</a>
         </div>
     </div>
 
     <div class="container">
-        <h1> vvChange-图片转PDF</h1>
+        <h1>vvChange - Image to PDF</h1>
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">
                 <i class="material-icons">cloud_upload</i>
             </div>
-            <p>拖放图片到这里 或 点击上传</p>
+            <p>Drag and drop images here or click to upload</p>
             <label for="fileInput" class="upload-btn">
                 <i class="material-icons">add_photo_alternate</i>
-                选择图片
+                Select Images
             </label>
             <input type="file" id="fileInput" accept="image/*" multiple hidden>
         </div>
         
         <div class="image-list" id="imageList">
-            <!-- 上传的图片预览将在这里显示-->
+            <!-- Uploaded image previews will be displayed here -->
         </div>
         
         <div class="controls">
             <button id="selectAllBtn" class="hidden">
                 <i class="material-icons">select_all</i>
-                全部
+                Select All
             </button>
             <button id="deleteSelectedBtn" class="hidden">
                 <i class="material-icons">delete</i>
-                删除所选
+                Delete Selected
             </button>
             <button id="convertBtn" disabled>
                 <i class="material-icons">picture_as_pdf</i>
-                生成PDF
+                Generate PDF
             </button>
             <button id="clearBtn" disabled>
                 <i class="material-icons">delete_sweep</i>
-                清除所有
+                Clear All
             </button>
         </div>
         
         <div class="instructions">
-            <h3><i class="material-icons">help_outline</i> 使用说明</h3>
+            <h3><i class="material-icons">help_outline</i> Instructions</h3>
             <ul>
-                <li>支持上传多张图片</li>
-                <li>点击图片可以预览大图</li>
-                <li>支持旋转图片</li>
-                <li>可以拖拽图片调整顺序</li>
-                <li>可以选择图片合并到一个PDF文件</li>
-                <li>没有选中图片则默认合并所有图片到一个PDF文件</li>
-                <li>生成的PDF将自动下载</li>
+                <li>Supports uploading multiple images</li>
+                <li>Click on an image to preview it larger</li>
+                <li>Supports image rotation</li>
+                <li>You can drag images to adjust the order</li>
+                <li>You can select images to merge into a PDF file</li>
+                <li>If no images are selected, all images will be merged into one PDF file by default</li>
+                <li>The generated PDF will be automatically downloaded</li>
             </ul>
         </div>
         
         <div class="footer">
-            <p>©2025-vvChange 智能转换工具 | 高效便捷的文件处理解决方案</p>
-            <p>有疑问请发送邮件至：chiyou1216@gmail.com</p>
+            <p>©2025-vvChange Smart Conversion Tool | Efficient and convenient file processing solution</p>
+            <p>For questions, please email: chiyou1216@gmail.com</p>
         </div>
     </div>
     
-    <!-- 使用备用CDN作为后备方案 -->
+    <!-- Use alternative CDN as backup -->
     <script>
-        // 检查jsPDF是否已加载
+        // Check if jsPDF is loaded
         if (typeof window.jspdf === 'undefined') {
-            console.log('jsPDF未正确加载，尝试加载备用库');
+            console.log('jsPDF failed to load correctly, trying to load alternative library');
             const script = document.createElement('script');
             script.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
             script.onload = function() {
-                console.log('备用jsPDF已加载');
+                console.log('Alternative jsPDF loaded');
             };
             script.onerror = function() {
-                console.error('无法加载jsPDF');
-                alert('无法加载PDF生成组件，请检查网络连接后刷新页面');
+                console.error('Unable to load jsPDF');
+                alert('Unable to load PDF generation component, please check your network connection and refresh the page');
             };
             document.head.appendChild(script);
         }
     </script>
     
     <script src="script.js"></script>
+    
 </body>
 </html> 

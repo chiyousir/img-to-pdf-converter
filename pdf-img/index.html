@@ -1,15 +1,58 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vvChange智能转换工具 - PDF转图片</title>
+    <title>vvChange Smart Conversion Tool - PDF to Image</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Free online tool to convert PDF files to high-quality JPG images. Support for multiple pages, custom quality settings, and batch downloads. No registration required.">
+    <meta name="keywords" content="PDF to Image,PDF to JPG,PDF converter,Online PDF tool,Free PDF conversion,Extract images from PDF,PDF page extraction,Batch conversion,Online conversion tool,vvChange">
+    <meta name="author" content="vvChange">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="vvChange - Free Online PDF to Image Converter">
+    <meta property="og:description" content="Convert PDF files to high-quality images with customizable settings. No software installation required.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.vvchange.top/pdf-img/">
+    
+    <!-- Canonical Link -->
+    <link rel="canonical" href="https://www.vvchange.top/pdf-img/">
+    
+    <!-- Structured Data / Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "vvChange PDF to Image Converter",
+      "url": "https://www.vvchange.top/pdf-img/",
+      "description": "Free online tool to convert PDF files to high-quality JPG images.",
+      "applicationCategory": "File Converter",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0"
+      }
+    }
+    </script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T56Z1TK03V"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-T56Z1TK03V');
+    </script>
+    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
     <!-- Material Icons -->
     <link rel="stylesheet" href="fonts/material-icons.css">
     
-    <!-- 预先加载必要的库 -->
+    <!-- Preload necessary libraries -->
     <script src="libs/pdf.js"></script>
     <script src="libs/jszip.min.js"></script>
     <style>
@@ -68,126 +111,109 @@
 </head>
 <body>
     <div class="nav-bar">
-        <a href="../index.html" class="nav-logo">VVChange - PDF转图片</a>
+        <a href="../index.html" class="nav-logo">VVChange - PDF to Image</a>
         <div class="nav-links">
-            <a href="../index.html" class="nav-link">主页</a>
-            <a href="../index.html#tools-section" class="nav-link">工具转换</a>
+            <a href="../index.html" class="nav-link">Home</a>
+            <a href="../index.html#tools-section" class="nav-link">Tools</a>
         </div>
     </div>
     <div class="container">
-        <h1> vvChange-PDF转图片</h1>
+        <h1>vvChange - PDF to Image</h1>
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">
                 <i class="material-icons">cloud_upload</i>
             </div>
-            <p>拖放PDF文件到这里 或 点击上传</p>
+            <p>Drag and drop PDF file here or click to upload</p>
             <label for="fileInput" class="upload-btn">
                 <i class="material-icons">file_upload</i>
-                选择PDF文件
+                Select PDF file
             </label>
             <input type="file" id="fileInput" accept=".pdf" hidden>
         </div>
         
         <div class="pdf-preview" id="pdfPreview">
-            <!-- PDF信息将在这里显示 -->
+            <!-- PDF information will be displayed here -->
         </div>
         
         <div class="conversion-options" id="conversionOptions" style="display: none;">
-            <h3><i class="material-icons">settings</i> 转换设置</h3>
+            <h3><i class="material-icons">settings</i> Conversion Settings</h3>
             <div class="options-grid">
                 <div class="option-group">
-                    <label>图片格式:</label>
+                    <label>Image Format:</label>
                     <div class="static-option">
                         <span class="format-badge">JPG</span>
-                        <small>最佳适用于照片和复杂图像</small>
                     </div>
-                    <input type="hidden" id="imageFormat" value="jpg">
                 </div>
                 
                 <div class="option-group">
-                    <label>图片质量:</label>
-                    <div class="static-option">
-                        <div class="quality-indicator">
-                            <div class="quality-bar"></div>
-                            <span>原图质量</span>
+                    <label>Image Quality:</label>
+                    <div class="range-slider">
+                        <input type="range" id="qualityRange" min="1" max="10" value="8" step="1">
+                        <span id="qualityValue">8</span>
+                    </div>
+                </div>
+                
+                <div class="option-group">
+                    <label>Resolution (DPI):</label>
+                    <div class="dpi-options">
+                        <button class="dpi-option selected" data-dpi="150">150</button>
+                        <button class="dpi-option" data-dpi="300">300</button>
+                        <button class="dpi-option" data-dpi="600">600</button>
+                    </div>
+                </div>
+                
+                <div class="option-group">
+                    <label>Page Range:</label>
+                    <div class="range-options">
+                        <button class="range-option selected" data-range="all">All Pages</button>
+                        <button class="range-option" data-range="custom">Custom</button>
+                        <div class="custom-range" style="display: none;">
+                            <input type="text" id="customRangeInput" placeholder="e.g., 1-3, 5, 8-10">
+                            <div class="range-hint">Use commas and hyphens (e.g., 1-3, 5, 8-10)</div>
                         </div>
                     </div>
-                    <input type="hidden" id="imageQuality" value="100">
                 </div>
-                
-                <div class="option-group">
-                    <label>分辨率:</label>
-                    <div class="static-option">
-                        <span class="dpi-value">300 DPI</span>
-                        <small>高质量打印级别</small>
-                    </div>
-                    <input type="hidden" id="dpi" value="300">
-                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="convertBtn" class="convert-btn">
+                    <i class="material-icons">image</i>
+                    Convert to Images
+                </button>
+                <button id="clearBtn" class="clear-btn">
+                    <i class="material-icons">delete_sweep</i>
+                    Clear
+                </button>
             </div>
         </div>
         
-        <div class="controls" style="display: none;">
-            <button id="convertBtn" disabled>
-                <i class="material-icons">image</i>
-                转换为图片
-            </button>
-            <button id="clearBtn" disabled>
-                <i class="material-icons">delete_sweep</i>
-                清除
-            </button>
+        <div class="images-preview" id="imagesPreview">
+            <!-- Converted images will be displayed here -->
         </div>
         
-        <div class="result-area" id="resultArea">
-            <!-- 转换结果将在这里显示 -->
-        </div>
-        
-        <div class="download-options" id="downloadOptions" style="display: none;">
-            <button id="downloadAllBtn">
-                <i class="material-icons">download</i>
-                下载所有图片(.zip)
+        <div class="download-controls" id="downloadControls" style="display: none;">
+            <button id="downloadAllBtn" class="download-btn">
+                <i class="material-icons">cloud_download</i>
+                Download All Images (ZIP)
             </button>
         </div>
         
         <div class="instructions">
-            <h3><i class="material-icons">help_outline</i> 使用说明</h3>
+            <h3><i class="material-icons">help_outline</i> Instructions</h3>
             <ul>
-                <li>上传单个PDF文件，最大支持200MB</li>
-                <li>上传后将自动以原图质量转换为JPG格式</li>
-                <li>系统会自动转换PDF的所有页面，并显示实时进度</li>
-                <li>支持下载所有图片</li>
-                <li>如需重新上传文件，点击清除按钮</li>
+                <li>Upload a PDF file to convert to images</li>
+                <li>Adjust quality and resolution settings</li>
+                <li>Select page ranges to convert specific pages</li>
+                <li>Preview converted images before downloading</li>
+                <li>Download individual images or all images as a ZIP file</li>
             </ul>
         </div>
         
         <div class="footer">
-            <p>©2025-vvChange 智能转换工具 | 高效便捷的文件处理解决方案</p>
-            <p>有疑问请发送邮件至：chiyou1216@gmail.com</p>
+            <p>©2025-vvChange Smart Conversion Tool | Efficient and convenient file processing solution</p>
+            <p>For questions, please email: chiyou1216@gmail.com</p>
         </div>
     </div>
-    
-    <!-- Toast消息组件 -->
-    <div class="toast-container" id="toastContainer"></div>
-    
-    <!-- 确保PDF.js正确加载 -->
-    <script>
-        // 检查PDF.js是否已加载
-        if (typeof pdfjsLib === 'undefined') {
-            console.log('PDF.js未正确加载，尝试加载备用库');
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.min.js';
-            script.onload = function() {
-                console.log('备用PDF.js已加载');
-                // 设置worker路径
-                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.worker.min.js';
-            };
-            script.onerror = function() {
-                console.error('无法加载PDF.js');
-                showToast('无法加载PDF处理组件，请检查网络连接后刷新页面', 'error');
-            };
-            document.head.appendChild(script);
-        }
-    </script>
-    
     <script src="script.js"></script>
 </body>
 </html> 

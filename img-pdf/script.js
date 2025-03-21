@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM元素
+    // DOM elements
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('fileInput');
     const imageList = document.getElementById('imageList');
@@ -8,44 +8,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectAllBtn = document.getElementById('selectAllBtn');
     const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
     
-    // 确保按钮已正确找到
-    console.log('初始化时按钮状态:', { 
+    // Ensure buttons are correctly found
+    console.log('Button status at initialization:', { 
         convertBtn: convertBtn ? convertBtn.disabled : 'not found',
         clearBtn: clearBtn ? clearBtn.disabled : 'not found',
         selectAllBtn: selectAllBtn ? selectAllBtn.disabled : 'not found',
         deleteSelectedBtn: deleteSelectedBtn ? deleteSelectedBtn.disabled : 'not found'
     });
     
-    // 初始时隐藏全选和删除所选按钮
+    // Initially hide select all and delete selected buttons
     selectAllBtn.classList.add('hidden');
     deleteSelectedBtn.classList.add('hidden');
     
-    // 存储上传的图片和已删除的图片
+    // Store uploaded images and deleted images
     const uploadedImages = [];
-    const deletedImages = new Map(); // 使用Map存储已删除的图片，键为图片hash，值为{file, timestamp}
+    const deletedImages = new Map(); // Use Map to store deleted images, key is image hash, value is {file, timestamp}
     let isSelectAll = false;
     
-    // 创建提示元素
+    // Create toast element
     const toastContainer = document.createElement('div');
     toastContainer.className = 'toast-container';
     document.body.appendChild(toastContainer);
 
-    // 显示提示信息的函数
+    // Function to show toast message
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         
-        // 设置图标颜色
-        let iconColor = '#e53935'; // 默认使用主色红色
+        // Set icon color
+        let iconColor = '#e53935'; // Default use main red color
         if (type === 'success') {
-            iconColor = '#4caf50'; // 成功消息使用绿色
+            iconColor = '#4caf50'; // Success message uses green
         } else if (type === 'warning') {
-            iconColor = '#ff9800'; // 警告消息使用橙色
+            iconColor = '#ff9800'; // Warning message uses orange
         } else if (type === 'error') {
-            iconColor = '#f44336'; // 错误消息使用红色
+            iconColor = '#f44336'; // Error message uses red
         }
         
-        // 设置图标
+        // Set icon
         let icon = 'info';
         if (type === 'success') {
             icon = 'check_circle';
@@ -55,90 +55,114 @@ document.addEventListener('DOMContentLoaded', function() {
             icon = 'error';
         }
         
-        // 创建带有适当样式的内容
         toast.innerHTML = `
-            <div class="toast-content">
-                <i class="material-icons" style="color: ${iconColor}; margin-right: 8px;">${icon}</i>
-                <span>${message}</span>
-                <button class="toast-close" style="margin-left: 10px; background: none; border: none; cursor: pointer;">
-                    <i class="material-icons" style="font-size: 16px; color: #999;">close</i>
-                </button>
-            </div>
+            <i class="material-icons" style="color: ${iconColor}">${icon}</i>
+            <span>${message}</span>
         `;
-        
-        // 添加关闭按钮事件
-        const closeBtn = toast.querySelector('.toast-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                toast.classList.add('fade-out');
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toastContainer.removeChild(toast);
-                    }
-                }, 300);
-            });
-        }
         
         toastContainer.appendChild(toast);
         
-        // 3秒后自动消失
+        // Automatically remove toast after 3 seconds
         setTimeout(() => {
-            if (toast.parentNode) {
-                toast.classList.add('fade-out');
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toastContainer.removeChild(toast);
-                    }
-                }, 300);
-            }
+            toast.classList.add('hide');
+            setTimeout(() => {
+                toastContainer.removeChild(toast);
+            }, 300);
         }, 3000);
     }
-
-    // 计算文件的hash值（使用文件名和大小作为简单的hash）
-    function getFileHash(file) {
-        return `${file.name}-${file.size}`;
+    
+    // Initialize Sortable for image list
+    if (typeof Sortable !== 'undefined') {
+        new Sortable(imageList, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: function() {
+                // Update array order after drag
+                const imageItems = Array.from(imageList.querySelectorAll('.image-item'));
+                const newOrder = [];
+                
+                imageItems.forEach(item => {
+                    const index = parseInt(item.dataset.index);
+                    newOrder.push(uploadedImages[index]);
+                });
+                
+                // Reassign with new order
+                uploadedImages.length = 0;
+                uploadedImages.push(...newOrder);
+                
+                // Update index attribute
+                imageItems.forEach((item, i) => {
+                    item.dataset.index = i;
+                });
+            }
+        });
+    } else {
+        console.error('Sortable library not loaded');
+        showToast('Unable to load sorting functionality', 'error');
     }
-
-    // 检查是否是已删除的图片
+    
+    // Function to get file hash for duplicate detection
+    function getFileHash(file) {
+        // Simple hash using file name, size and last modified time
+        return `${file.name}-${file.size}-${file.lastModified}`;
+    }
+    
+    // Check if image is in deleted map
     function isDeletedImage(file) {
         const hash = getFileHash(file);
         return deletedImages.has(hash);
     }
-
-    // 创建恢复按钮
+    
+    // Create recover button for recently deleted images
     function createRecoverButton(file) {
+        const hash = getFileHash(file);
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'recover-container';
+        
         const recoverBtn = document.createElement('button');
         recoverBtn.className = 'recover-btn';
-        recoverBtn.textContent = '恢复此图片';
-        recoverBtn.onclick = () => {
-            const hash = getFileHash(file);
+        recoverBtn.innerHTML = '<i class="material-icons">restore</i> Recover';
+        
+        recoverBtn.addEventListener('click', function() {
             deletedImages.delete(hash);
             addImageToList(file);
-            showToast('图片已恢复', 'success');
-        };
-        return recoverBtn;
-    }
-
-    // 确保SortableJS加载正确
-    if (typeof Sortable !== 'undefined') {
-        // 初始化SortableJS让图片可以拖拽排序
-        new Sortable(imageList, {
-            animation: 150,
-            ghostClass: 'sortable-ghost'
+            buttonContainer.remove();
+            showToast('Image recovered successfully', 'success');
         });
-    } else {
-        console.error('Sortable库未正确加载!');
+        
+        const countdown = document.createElement('div');
+        countdown.className = 'recover-countdown';
+        
+        buttonContainer.appendChild(recoverBtn);
+        buttonContainer.appendChild(countdown);
+        
+        // Start 10 second countdown
+        let timeLeft = 10;
+        countdown.textContent = `${timeLeft}s`;
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            countdown.textContent = `${timeLeft}s`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                buttonContainer.remove();
+            }
+        }, 1000);
+        
+        return buttonContainer;
     }
     
-    // 处理拖放功能
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, preventDefaults, false);
-    });
-    
+    // Prevent default drag and drop behaviors
     function preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
     }
+    
+    // Add event listeners for drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
     
     ['dragenter', 'dragover'].forEach(eventName => {
         uploadArea.addEventListener(eventName, highlight, false);
@@ -148,83 +172,75 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadArea.addEventListener(eventName, unhighlight, false);
     });
     
+    // Highlight drop area
     function highlight() {
         uploadArea.classList.add('highlight');
     }
     
+    // Remove highlight from drop area
     function unhighlight() {
         uploadArea.classList.remove('highlight');
     }
     
-    // 处理文件拖放
-    uploadArea.addEventListener('drop', handleDrop, false);
-    
+    // Handle drop event
     function handleDrop(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
-        handleFiles(files);
+        
+        if (files.length > 0) {
+            handleFiles(files);
+        }
     }
     
-    // 处理文件选择
-    fileInput.addEventListener('change', function() {
-        handleFiles(this.files);
-        // 重置 input 的值，这样相同的文件可以再次触发 change 事件
-        this.value = '';
-    });
+    uploadArea.addEventListener('drop', handleDrop, false);
     
-    // 处理上传的文件
+    // Handle files from input or drop
     function handleFiles(files) {
-        if (files.length === 0) return;
+        files = Array.from(files);
         
-        // 如果上传了多张图片，先取消所有现有选择
-        if (files.length > 1) {
-            const existingSelected = document.querySelectorAll('.image-item.selected');
-            existingSelected.forEach(item => {
-                item.classList.remove('selected');
-            });
-            
-            isSelectAll = false;
-            if (selectAllBtn) {
-                selectAllBtn.textContent = '全选';
-            }
+        // Filter only image files
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        
+        if (imageFiles.length === 0) {
+            showToast('Please select image files only', 'error');
+            return;
         }
         
-        let addedCount = 0;
+        if (imageFiles.length !== files.length) {
+            showToast(`${files.length - imageFiles.length} non-image files were ignored`, 'warning');
+        }
         
-        Array.from(files).forEach(file => {
-            if (file.type.match('image.*')) {
-                // 检查是否是已删除的图片
-                if (isDeletedImage(file)) {
-                    const confirmRecover = confirm('此图片之前已被删除，是否恢复？');
-                    if (confirmRecover) {
-                        const hash = getFileHash(file);
-                        deletedImages.delete(hash);
-                        addImageToList(file);
-                        showToast('图片已恢复', 'success');
-                        addedCount++;
-                    }
-                    return;
-                }
-
-                addImageToList(file);
-                addedCount++;
-                
-                // 单张图片上传时显示提示
-                if (files.length === 1) {
-                    showToast('图片上传成功', 'success');
-                }
-            }
+        // Check if any files are already uploaded
+        const duplicates = imageFiles.filter(file => 
+            uploadedImages.some(img => getFileHash(img) === getFileHash(file)) ||
+            isDeletedImage(file)
+        );
+        
+        if (duplicates.length > 0) {
+            showToast(`${duplicates.length} duplicate images were ignored`, 'warning');
+        }
+        
+        // Filter out duplicates
+        const newFiles = imageFiles.filter(file => 
+            !uploadedImages.some(img => getFileHash(img) === getFileHash(file)) &&
+            !isDeletedImage(file)
+        );
+        
+        // Add new files to list
+        newFiles.forEach(file => {
+            addImageToList(file);
         });
         
-        // 多张图片上传时显示统计提示
-        if (files.length > 1 && addedCount > 0) {
-            showToast(`成功添加 ${addedCount} 张图片`, 'success');
+        // Show success message
+        if (newFiles.length > 0) {
+            showToast(`${newFiles.length} images uploaded successfully`, 'success');
+            
+            // Update button states
+            updateButtonState();
         }
-        
-        updateButtonState();
     }
     
-    // 添加图片到预览列表
+    // Add image to the list
     function addImageToList(file) {
         const reader = new FileReader();
         
@@ -233,619 +249,551 @@ document.addEventListener('DOMContentLoaded', function() {
             img.src = e.target.result;
             
             img.onload = function() {
-                const imageIndex = document.querySelectorAll('.image-item').length;
-                const imageData = {
-                    file: file,
-                    src: e.target.result,
-                    width: img.width,
-                    height: img.height,
-                    name: file.name,
-                    rotation: 0
-                };
-                uploadedImages.push(imageData);
+                const index = uploadedImages.length;
+                uploadedImages.push(file);
                 
                 const imageItem = document.createElement('div');
                 imageItem.className = 'image-item';
-                imageItem.dataset.index = imageIndex;
+                imageItem.dataset.index = index;
                 
-                // 创建图片元素
-                const imgEl = document.createElement('img');
-                imgEl.src = e.target.result;
-                imgEl.alt = file.name;
+                // Create image container
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'image-container';
                 
-                // 图片点击预览功能
-                imgEl.addEventListener('click', function(e) {
-                    e.stopPropagation(); // 阻止冒泡，避免触发选择功能
-                    previewImage(imageData);
+                // Create image element with preview
+                const imagePreview = document.createElement('img');
+                imagePreview.src = e.target.result;
+                imagePreview.alt = file.name;
+                imagePreview.className = 'image-preview';
+                
+                // Make image preview clickable to show full size
+                imagePreview.addEventListener('click', function() {
+                    previewImage(this);
                 });
                 
-                imageItem.appendChild(imgEl);
-                
-                // 创建删除按钮
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-btn';
-                removeBtn.innerHTML = '<i class="material-icons">close</i>';
-                removeBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    removeImage(imageItem, file);
+                // Add checkbox for selection
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'image-checkbox';
+                checkbox.addEventListener('change', function() {
+                    // Update selected state visual
+                    imageItem.classList.toggle('selected', this.checked);
+                    
+                    // Update delete button state
+                    updateDeleteButtonState();
                 });
                 
-                // 创建旋转控制区域
-                const rotateControls = document.createElement('div');
-                rotateControls.className = 'rotate-controls';
+                // Create image info section
+                const imageInfo = document.createElement('div');
+                imageInfo.className = 'image-info';
                 
-                // 创建旋转按钮
-                const rotateLeftBtn = document.createElement('button');
-                rotateLeftBtn.className = 'rotate-btn left';
-                rotateLeftBtn.textContent = '左旋';
-                rotateLeftBtn.title = '向左旋转90°';
-                rotateLeftBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const index = parseInt(imageItem.dataset.index);
+                // Show image name (truncated if too long)
+                const fileName = file.name.length > 20 
+                    ? file.name.substring(0, 17) + '...' 
+                    : file.name;
+                
+                // Show image dimensions
+                const imageDimensions = document.createElement('span');
+                imageDimensions.className = 'image-dimensions';
+                imageDimensions.textContent = `${img.width} × ${img.height}`;
+                
+                // Create image controls
+                const imageControls = document.createElement('div');
+                imageControls.className = 'image-controls';
+                
+                // Rotation controls
+                const rotateLeft = document.createElement('button');
+                rotateLeft.className = 'rotate-btn';
+                rotateLeft.innerHTML = '<i class="material-icons">rotate_left</i>';
+                rotateLeft.title = 'Rotate left';
+                rotateLeft.addEventListener('click', function() {
                     rotateImage(index, -90);
                 });
                 
-                // 创建右旋按钮
-                const rotateRightBtn = document.createElement('button');
-                rotateRightBtn.className = 'rotate-btn right';
-                rotateRightBtn.textContent = '右旋';
-                rotateRightBtn.title = '向右旋转90°';
-                rotateRightBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const index = parseInt(imageItem.dataset.index);
+                const rotateRight = document.createElement('button');
+                rotateRight.className = 'rotate-btn';
+                rotateRight.innerHTML = '<i class="material-icons">rotate_right</i>';
+                rotateRight.title = 'Rotate right';
+                rotateRight.addEventListener('click', function() {
                     rotateImage(index, 90);
                 });
                 
-                rotateControls.appendChild(rotateLeftBtn);
-                rotateControls.appendChild(rotateRightBtn);
+                // Delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '<i class="material-icons">delete</i>';
+                deleteBtn.title = 'Delete';
+                deleteBtn.addEventListener('click', function() {
+                    removeImage(imageItem, file);
+                });
                 
-                // 添加旋转控制区域到图片项
-                imageItem.appendChild(rotateControls);
-                imageItem.appendChild(removeBtn);
+                // Assemble the controls
+                imageControls.appendChild(rotateLeft);
+                imageControls.appendChild(rotateRight);
+                imageControls.appendChild(deleteBtn);
                 
+                // Assemble the file name and dimensions
+                const fileNameElement = document.createElement('span');
+                fileNameElement.className = 'image-name';
+                fileNameElement.textContent = fileName;
+                fileNameElement.title = file.name; // Full name on hover
+                
+                imageInfo.appendChild(fileNameElement);
+                imageInfo.appendChild(imageDimensions);
+                
+                // Assemble the image container
+                imageContainer.appendChild(imagePreview);
+                imageContainer.appendChild(checkbox);
+                
+                // Assemble the entire image item
+                imageItem.appendChild(imageContainer);
+                imageItem.appendChild(imageInfo);
+                imageItem.appendChild(imageControls);
+                
+                // Add to UI
                 imageList.appendChild(imageItem);
                 
-                updateButtonState();
-                updateDeleteButtonState();
+                // Show select all button if we have images
+                selectAllBtn.classList.remove('hidden');
+                
+                // Update rotation state tracking
+                imageItem.dataset.rotation = '0';
             };
         };
         
         reader.readAsDataURL(file);
     }
     
-    // 添加旋转图片的函数
+    // Function to rotate image
     function rotateImage(index, degrees) {
-        if (index < 0 || index >= uploadedImages.length) return;
+        // Get image element
+        const imageItem = document.querySelector(`.image-item[data-index="${index}"]`);
+        const imagePreview = imageItem.querySelector('.image-preview');
         
-        // 更新图片旋转角度
-        uploadedImages[index].rotation = (uploadedImages[index].rotation + degrees) % 360;
+        // Calculate new rotation value
+        const currentRotation = parseInt(imageItem.dataset.rotation || '0');
+        const newRotation = (currentRotation + degrees) % 360;
         
-        // 如果是负值，转换为等效的正值
-        if (uploadedImages[index].rotation < 0) {
-            uploadedImages[index].rotation += 360;
-        }
+        // Update data attribute
+        imageItem.dataset.rotation = newRotation;
         
-        // 更新图片样式
-        const imageItems = document.querySelectorAll('.image-item');
-        if (index < imageItems.length) {
-            const img = imageItems[index].querySelector('img');
-            if (img) {
-                img.style.transform = `rotate(${uploadedImages[index].rotation}deg)`;
-            }
+        // Apply rotation with CSS transform
+        imagePreview.style.transform = `rotate(${newRotation}deg)`;
+        
+        // If rotation is 90 or 270 degrees, swap width/height constraints
+        if (newRotation % 180 !== 0) {
+            imagePreview.classList.add('rotated');
+        } else {
+            imagePreview.classList.remove('rotated');
         }
     }
     
-    // 更新按钮状态
+    // Update button states based on uploaded images
     function updateButtonState() {
-        const hasImages = uploadedImages.length > 0;
-        console.log('更新按钮状态:', { hasImages, imagesCount: uploadedImages.length });
-        
-        // 确保按钮被启用
-        if (hasImages) {
+        if (uploadedImages.length > 0) {
             convertBtn.disabled = false;
             clearBtn.disabled = false;
-            selectAllBtn.disabled = false;
-            deleteSelectedBtn.disabled = false;
-            
-            // 显示全选和删除所选按钮
             selectAllBtn.classList.remove('hidden');
-            deleteSelectedBtn.classList.remove('hidden');
             
-            // 移除可能被添加的disabled类
-            convertBtn.classList.remove('disabled');
-            clearBtn.classList.remove('disabled');
-            selectAllBtn.classList.remove('disabled');
-            deleteSelectedBtn.classList.remove('disabled');
+            // Check if any images are selected
+            const hasSelectedImages = Array.from(
+                document.querySelectorAll('.image-checkbox')
+            ).some(checkbox => checkbox.checked);
+            
+            if (hasSelectedImages) {
+                deleteSelectedBtn.classList.remove('hidden');
+            } else {
+                deleteSelectedBtn.classList.add('hidden');
+            }
         } else {
             convertBtn.disabled = true;
             clearBtn.disabled = true;
-            selectAllBtn.disabled = true;
-            deleteSelectedBtn.disabled = true;
-            
-            // 隐藏全选和删除所选按钮
             selectAllBtn.classList.add('hidden');
             deleteSelectedBtn.classList.add('hidden');
         }
     }
     
-    // 确保生成PDF按钮有点击事件
-    convertBtn.addEventListener('click', function(e) {
-        console.log('生成PDF按钮被点击');
-        generatePDF();
-    });
-    
-    function generatePDF() {
-        if (uploadedImages.length === 0) return;
-        
-        // 获取选中的图片项
-        const selectedItems = document.querySelectorAll('.image-item.selected');
-        
-        // 如果有选中的图片，则只处理选中的图片；否则处理所有图片
-        let itemsToProcess;
-        if (selectedItems.length > 0) {
-            itemsToProcess = selectedItems;
-        } else {
-            itemsToProcess = document.querySelectorAll('.image-item');
+    // File input change handler
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            handleFiles(this.files);
+            this.value = ''; // Reset input to allow selecting the same files again
         }
-        
-        // 获取排序后的图片列表
-        const sortedImages = Array.from(itemsToProcess).map(item => {
-            const index = parseInt(item.dataset.index);
-            return uploadedImages[index];
-        });
-        
-        // 显示加载状态
-        convertBtn.disabled = true;
-        convertBtn.textContent = '处理中...';
-        
-        // 使用setTimeout允许UI更新
-        setTimeout(() => {
-            try {
-                // 检查jsPDF是否正确加载
-                if (typeof window.jspdf === 'undefined') {
-                    console.error('jsPDF库未正确加载!');
-                    alert('PDF生成组件未正确加载，请检查网络连接后刷新页面重试。');
-                    convertBtn.textContent = '生成PDF';
-                    convertBtn.disabled = false;
-                    return;
-                }
-                
-                // 使用jsPDF创建PDF
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF();
-                
-                // 处理每张图片
-                const processImages = async () => {
-                    try {
-                        for (let i = 0; i < sortedImages.length; i++) {
-                            const img = sortedImages[i];
-                            
-                            // 如果不是第一页，添加新页
-                            if (i > 0) {
-                                pdf.addPage();
-                            }
-                            
-                            // 计算最佳适应页面的尺寸
-                            const pageWidth = pdf.internal.pageSize.getWidth();
-                            const pageHeight = pdf.internal.pageSize.getHeight();
-                            
-                            // 如果有旋转，创建临时canvas处理旋转后的图像
-                            if (img.rotation !== 0) {
-                                const tempImg = new Image();
-                                tempImg.src = img.src;
-                                
-                                const canvas = document.createElement('canvas');
-                                const ctx = canvas.getContext('2d');
-                                
-                                // 根据旋转角度设置canvas大小
-                                let canvasWidth, canvasHeight;
-                                
-                                if (img.rotation === 90 || img.rotation === 270) {
-                                    // 如果旋转了90度或270度，交换宽高
-                                    canvasWidth = img.height;
-                                    canvasHeight = img.width;
-                                } else {
-                                    canvasWidth = img.width;
-                                    canvasHeight = img.height;
-                                }
-                                
-                                canvas.width = canvasWidth;
-                                canvas.height = canvasHeight;
-                                
-                                // 在canvas中心进行旋转
-                                ctx.save();
-                                ctx.translate(canvasWidth / 2, canvasHeight / 2);
-                                ctx.rotate((img.rotation * Math.PI) / 180);
-                                ctx.drawImage(
-                                    tempImg,
-                                    -img.width / 2,
-                                    -img.height / 2,
-                                    img.width,
-                                    img.height
-                                );
-                                ctx.restore();
-                                
-                                // 计算旋转后图像的尺寸
-                                let displayWidth = canvasWidth;
-                                let displayHeight = canvasHeight;
-                                
-                                // 适应页面大小
-                                const ratio = Math.min(
-                                    pageWidth / displayWidth,
-                                    pageHeight / displayHeight
-                                );
-                                
-                                displayWidth *= ratio;
-                                displayHeight *= ratio;
-                                
-                                // 居中图片
-                                const x = (pageWidth - displayWidth) / 2;
-                                const y = (pageHeight - displayHeight) / 2;
-                                
-                                // 将canvas添加到PDF
-                                const imgData = canvas.toDataURL('image/jpeg');
-                                pdf.addImage(imgData, 'JPEG', x, y, displayWidth, displayHeight);
-                            } else {
-                                // 如果没有旋转，直接处理原图
-                                let imgWidth = img.width;
-                                let imgHeight = img.height;
-                                
-                                // 适应页面大小
-                                const ratio = Math.min(
-                                    pageWidth / imgWidth,
-                                    pageHeight / imgHeight
-                                );
-                                
-                                imgWidth *= ratio;
-                                imgHeight *= ratio;
-                                
-                                // 居中图片
-                                const x = (pageWidth - imgWidth) / 2;
-                                const y = (pageHeight - imgHeight) / 2;
-                                
-                                // 添加图片到PDF
-                                pdf.addImage(img.src, 'JPEG', x, y, imgWidth, imgHeight);
-                            }
-                        }
-                        
-                        // 使用第一张图片的名称作为PDF文件名
-                        let fileName = '图片转换.pdf'; // 默认文件名
-                        if (sortedImages.length > 0 && sortedImages[0].name) {
-                            // 去除扩展名，添加.pdf
-                            const baseName = sortedImages[0].name.replace(/\.[^/.]+$/, "");
-                            fileName = baseName + '.pdf';
-                        }
-                        
-                        // 保存PDF
-                        pdf.save(fileName);
-                    } catch (err) {
-                        console.error('处理图片过程中出错:', err);
-                        alert('生成PDF过程中出错: ' + err.message);
-                    } finally {
-                        // 恢复按钮状态
-                        convertBtn.textContent = '生成PDF';
-                        convertBtn.disabled = false;
-                    }
-                };
-                
-                processImages();
-            } catch (err) {
-                console.error('PDF生成错误:', err);
-                alert('生成PDF时发生错误: ' + err.message);
-                // 恢复按钮状态
-                convertBtn.textContent = '生成PDF';
-                convertBtn.disabled = false;
-            }
-        }, 100);
-    }
-    
-    // 全选按钮点击事件
-    selectAllBtn.addEventListener('click', function() {
-        isSelectAll = !isSelectAll;
-        const imageItems = document.querySelectorAll('.image-item');
-        
-        imageItems.forEach(item => {
-            if (isSelectAll) {
-                item.classList.add('selected');
-            } else {
-                item.classList.remove('selected');
-            }
-        });
-        
-        // 更新按钮文本和状态
-        selectAllBtn.textContent = isSelectAll ? '取消全选' : '全选';
-        updateDeleteButtonState();
     });
     
-    // 删除选中图片按钮点击事件
-    deleteSelectedBtn.addEventListener('click', function() {
-        // 获取所有选中的图片项
-        const selectedItems = document.querySelectorAll('.image-item.selected');
-        
-        // 没有选中的图片，直接返回
-        if (selectedItems.length === 0) return;
-        
-        // 获取所有选中项的索引（从大到小排序，避免删除时影响其他索引）
-        const selectedIndices = Array.from(selectedItems)
-            .map(item => parseInt(item.dataset.index))
-            .sort((a, b) => b - a); // 从大到小排序
-        
-        // 按索引从大到小顺序删除图片（避免删除前面的项目影响后面项目的索引）
-        selectedIndices.forEach(index => {
-            if (index >= 0 && index < uploadedImages.length) {
-                // 从数组中删除
-                uploadedImages.splice(index, 1);
-                // 从DOM中删除
-                const itemToRemove = document.querySelector(`.image-item[data-index="${index}"]`);
-                if (itemToRemove) {
-                    itemToRemove.remove();
-                }
-            }
-        });
-        
-        // 更新剩余图片的索引
-        const remainingItems = document.querySelectorAll('.image-item');
-        remainingItems.forEach((item, i) => {
-            item.dataset.index = i;
-        });
-        
-        // 重置全选状态
-        isSelectAll = false;
-        selectAllBtn.textContent = '全选';
-        
-        // 更新按钮状态
-        updateButtonState();
-        updateDeleteButtonState();
+    // Click handler for the upload area
+    uploadArea.addEventListener('click', function(e) {
+        // Prevent click from triggering if user is interacting with a child element
+        if (e.target === uploadArea || e.target.closest('.upload-btn') || e.target.closest('.upload-icon') || e.target === uploadArea.querySelector('p')) {
+            fileInput.click();
+        }
     });
     
-    // 图片点击选中/取消选中
-    imageList.addEventListener('click', function(e) {
-        const imageItem = e.target.closest('.image-item');
-        if (!imageItem) return;
+    // Generate PDF
+    function generatePDF() {
+        // Get selected images or all if none selected
+        const checkboxes = Array.from(document.querySelectorAll('.image-checkbox'));
+        const selectedIndices = checkboxes
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => parseInt(checkbox.closest('.image-item').dataset.index));
         
-        // 如果点击的是按钮，不触发选中
-        if (e.target.closest('.remove-btn') || e.target.closest('.rotate-controls') || e.target.tagName === 'IMG') {
+        // Use selected images or all if none selected
+        const imagesToProcess = selectedIndices.length > 0 
+            ? selectedIndices.map(index => ({
+                file: uploadedImages[index],
+                rotation: parseInt(document.querySelector(`.image-item[data-index="${index}"]`).dataset.rotation || '0')
+            }))
+            : uploadedImages.map((file, index) => ({
+                file,
+                rotation: parseInt(document.querySelector(`.image-item[data-index="${index}"]`).dataset.rotation || '0')
+            }));
+        
+        if (imagesToProcess.length === 0) {
+            showToast('No images to convert', 'error');
             return;
         }
         
-        imageItem.classList.toggle('selected');
-        updateDeleteButtonState();
+        // Show loading state
+        const loadingToast = document.createElement('div');
+        loadingToast.className = 'toast loading';
+        loadingToast.innerHTML = `
+            <div class="loading-spinner"></div>
+            <span>Processing images... </span>
+            <span class="progress-text">0/${imagesToProcess.length}</span>
+        `;
+        toastContainer.appendChild(loadingToast);
         
-        // 更新全选按钮状态
-        const totalImages = document.querySelectorAll('.image-item').length;
-        const selectedImages = document.querySelectorAll('.image-item.selected').length;
-        isSelectAll = totalImages === selectedImages;
-        selectAllBtn.textContent = isSelectAll ? '取消全选' : '全选';
-    });
-    
-    // 更新删除按钮状态
-    function updateDeleteButtonState() {
-        const selectedCount = document.querySelectorAll('.image-item.selected').length;
-        deleteSelectedBtn.disabled = selectedCount === 0;
+        // Get document
+        if (typeof jspdf !== 'undefined' || window.jspdf) {
+            const { jsPDF } = window.jspdf || window.jspdf;
+            
+            // Check if jsPDF is available
+            if (typeof jsPDF === 'function') {
+                try {
+                    // Create PDF document
+                    const doc = new jsPDF();
+                    let currentPage = 1;
+                    const progressText = loadingToast.querySelector('.progress-text');
+                    
+                    // Process images sequentially
+                    const processImages = async () => {
+                        for (let i = 0; i < imagesToProcess.length; i++) {
+                            // Update progress
+                            progressText.textContent = `${i+1}/${imagesToProcess.length}`;
+                            
+                            // Get current image data
+                            const { file, rotation } = imagesToProcess[i];
+                            
+                            // Create a promise to load the image
+                            const imageDataPromise = new Promise((resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    const img = new Image();
+                                    img.onload = function() {
+                                        resolve({ img, result: e.target.result });
+                                    };
+                                    img.onerror = reject;
+                                    img.src = e.target.result;
+                                };
+                                reader.onerror = reject;
+                                reader.readAsDataURL(file);
+                            });
+                            
+                            try {
+                                // Wait for image to load
+                                const { img, result } = await imageDataPromise;
+                                
+                                // Get dimensions
+                                let imgWidth = img.width;
+                                let imgHeight = img.height;
+                                
+                                // If rotated by 90 or 270 degrees, swap dimensions
+                                if (rotation % 180 !== 0) {
+                                    [imgWidth, imgHeight] = [imgHeight, imgWidth];
+                                }
+                                
+                                // Calculate page size to fit the image
+                                const pageWidth = doc.internal.pageSize.getWidth();
+                                const pageHeight = doc.internal.pageSize.getHeight();
+                                
+                                // Scale image to fit page while maintaining aspect ratio
+                                let finalWidth = imgWidth;
+                                let finalHeight = imgHeight;
+                                
+                                const ratio = imgWidth / imgHeight;
+                                
+                                if (finalWidth > pageWidth) {
+                                    finalWidth = pageWidth - 20; // 10px margin on each side
+                                    finalHeight = finalWidth / ratio;
+                                }
+                                
+                                if (finalHeight > pageHeight) {
+                                    finalHeight = pageHeight - 20; // 10px margin on top/bottom
+                                    finalWidth = finalHeight * ratio;
+                                }
+                                
+                                // Center image on page
+                                const xOffset = (pageWidth - finalWidth) / 2;
+                                const yOffset = (pageHeight - finalHeight) / 2;
+                                
+                                // Add new page for each image after the first one
+                                if (i > 0) {
+                                    doc.addPage();
+                                    currentPage++;
+                                }
+                                
+                                // Add image to PDF
+                                if (rotation !== 0) {
+                                    // For rotated images, we need to use a canvas
+                                    const canvas = document.createElement('canvas');
+                                    const ctx = canvas.getContext('2d');
+                                    
+                                    // Adjust canvas size based on rotation
+                                    if (rotation % 180 !== 0) {
+                                        canvas.width = img.height;
+                                        canvas.height = img.width;
+                                    } else {
+                                        canvas.width = img.width;
+                                        canvas.height = img.height;
+                                    }
+                                    
+                                    // Move to center of canvas
+                                    ctx.translate(canvas.width / 2, canvas.height / 2);
+                                    
+                                    // Rotate context
+                                    ctx.rotate(rotation * Math.PI / 180);
+                                    
+                                    // Draw image centered
+                                    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+                                    
+                                    // Get data URL from canvas
+                                    const rotatedImgData = canvas.toDataURL('image/jpeg');
+                                    
+                                    // Add to PDF
+                                    doc.addImage(rotatedImgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight);
+                                } else {
+                                    // No rotation, add image directly
+                                    doc.addImage(result, 'JPEG', xOffset, yOffset, finalWidth, finalHeight);
+                                }
+                            } catch (err) {
+                                console.error('Error processing image:', err);
+                                showToast(`Error processing image ${file.name}`, 'error');
+                            }
+                        }
+                        
+                        // Save the PDF
+                        const fileName = imagesToProcess.length === 1 
+                            ? `${imagesToProcess[0].file.name.split('.')[0]}.pdf`
+                            : `vvchange_images_${new Date().toISOString().slice(0, 10)}.pdf`;
+                        
+                        doc.save(fileName);
+                        
+                        // Remove loading toast
+                        toastContainer.removeChild(loadingToast);
+                        
+                        // Show success message
+                        showToast(`PDF created with ${imagesToProcess.length} images`, 'success');
+                        
+                        // Uncheck all checkboxes after conversion
+                        const checkboxes = document.querySelectorAll('.image-checkbox');
+                        checkboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                        
+                        // Update UI state
+                        isSelectAll = false;
+                        selectAllBtn.textContent = 'Select All';
+                        
+                        // Remove selected class from all items
+                        document.querySelectorAll('.image-item').forEach(item => {
+                            item.classList.remove('selected');
+                        });
+                        
+                        // Update button states
+                        updateButtonState();
+                    };
+                    
+                    // Start processing images
+                    processImages();
+                    
+                } catch (err) {
+                    console.error('Error creating PDF:', err);
+                    toastContainer.removeChild(loadingToast);
+                    showToast('Error creating PDF. Please try again.', 'error');
+                }
+            } else {
+                showToast('PDF generation library not loaded properly. Please refresh the page.', 'error');
+            }
+        } else {
+            showToast('PDF generation library not loaded. Please refresh the page.', 'error');
+        }
     }
     
-    // 清除所有图片
+    // Update delete button state
+    function updateDeleteButtonState() {
+        const hasSelectedImages = Array.from(
+            document.querySelectorAll('.image-checkbox')
+        ).some(checkbox => checkbox.checked);
+        
+        if (hasSelectedImages) {
+            deleteSelectedBtn.classList.remove('hidden');
+        } else {
+            deleteSelectedBtn.classList.add('hidden');
+        }
+    }
+    
+    // Clear all images
     clearBtn.addEventListener('click', function() {
-        // 清空图片数组
+        // Clear all images
+        imageList.innerHTML = '';
         uploadedImages.length = 0;
         
-        // 清空图片列表DOM，但保留事件监听
-        while (imageList.firstChild) {
-            imageList.removeChild(imageList.firstChild);
-        }
-        
-        // 重置选择状态
-        isSelectAll = false;
-        selectAllBtn.textContent = '全选';
-        
-        // 隐藏全选和删除所选按钮
-        selectAllBtn.classList.add('hidden');
-        deleteSelectedBtn.classList.add('hidden');
-        
+        // Reset button states
         updateButtonState();
+        
+        showToast('All images cleared', 'info');
+    });
+    
+    // Select all images
+    selectAllBtn.addEventListener('click', function() {
+        isSelectAll = !isSelectAll;
+        
+        const checkboxes = document.querySelectorAll('.image-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = isSelectAll;
+            checkbox.closest('.image-item').classList.toggle('selected', isSelectAll);
+        });
+        
+        // Update button text
+        this.innerHTML = isSelectAll 
+            ? '<i class="material-icons">deselect</i> Deselect All'
+            : '<i class="material-icons">select_all</i> Select All';
+        
         updateDeleteButtonState();
     });
-
-    // 预览图片的功能
+    
+    // Preview image in large view
     function previewImage(image) {
-        // 创建预览模态框
-        const modal = document.createElement('div');
-        modal.className = 'image-preview-modal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            padding: 20px;
-            box-sizing: border-box;
-        `;
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'preview-overlay';
         
-        // 创建预览容器
-        const previewContainer = document.createElement('div');
-        previewContainer.className = 'preview-container';
-        previewContainer.style.cssText = `
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 90%;
-            max-height: 90%;
-            overflow: auto;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        `;
+        // Create image container
+        const container = document.createElement('div');
+        container.className = 'preview-container';
         
-        // 创建图片标题
-        const titleBar = document.createElement('div');
-        titleBar.style.cssText = `
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        `;
+        // Create image element
+        const previewImg = document.createElement('img');
+        previewImg.src = image.src;
+        previewImg.className = 'preview-image';
         
-        const title = document.createElement('h3');
-        title.textContent = image.name || '图片预览';
-        title.style.cssText = `
-            margin: 0;
-            color: #333;
-            font-size: 18px;
-            font-weight: 500;
-        `;
+        // Get rotation from original image
+        const imageItem = image.closest('.image-item');
+        const rotation = imageItem ? parseInt(imageItem.dataset.rotation || '0') : 0;
         
-        // 关闭按钮
+        // Apply rotation to preview
+        previewImg.style.transform = `rotate(${rotation}deg)`;
+        
+        // Add close button
         const closeBtn = document.createElement('button');
+        closeBtn.className = 'preview-close';
         closeBtn.innerHTML = '<i class="material-icons">close</i>';
-        closeBtn.style.cssText = `
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 24px;
-            color: #999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        `;
-        closeBtn.addEventListener('mouseover', function() {
-            this.style.color = '#e53935';
-        });
-        closeBtn.addEventListener('mouseout', function() {
-            this.style.color = '#999';
-        });
         
-        closeBtn.addEventListener('click', function() {
-            document.body.removeChild(modal);
-        });
+        // Handle close
+        function closePreview() {
+            document.body.removeChild(overlay);
+            document.body.classList.remove('no-scroll');
+        }
         
-        titleBar.appendChild(title);
-        titleBar.appendChild(closeBtn);
+        closeBtn.addEventListener('click', closePreview);
         
-        // 创建图片容器
-        const imageContainer = document.createElement('div');
-        imageContainer.style.cssText = `
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 15px;
-            overflow: hidden;
-        `;
-        
-        // 创建图片元素
-        const img = document.createElement('img');
-        img.src = image.src;
-        img.alt = image.name || '预览图片';
-        img.style.cssText = `
-            max-width: 100%;
-            max-height: 70vh;
-            object-fit: contain;
-            transform: rotate(${image.rotation || 0}deg);
-        `;
-        
-        imageContainer.appendChild(img);
-        
-        // 创建图片信息
-        const infoContainer = document.createElement('div');
-        infoContainer.style.cssText = `
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            color: #666;
-        `;
-        
-        const dimensions = document.createElement('span');
-        dimensions.textContent = `尺寸: ${image.width} × ${image.height} 像素`;
-        
-        infoContainer.appendChild(dimensions);
-        
-        // 创建下载按钮
-        const downloadBtn = document.createElement('button');
-        downloadBtn.innerHTML = '<i class="material-icons">file_download</i> 下载图片';
-        downloadBtn.style.cssText = `
-            padding: 8px 16px;
-            background: linear-gradient(to right, #e53935, #f44336);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-top: 15px;
-            align-self: center;
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            box-shadow: 0 2px 5px rgba(229, 57, 53, 0.3);
-            transition: all 0.2s;
-        `;
-        
-        downloadBtn.addEventListener('mouseover', function() {
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0 4px 8px rgba(229, 57, 53, 0.4)';
-        });
-        
-        downloadBtn.addEventListener('mouseout', function() {
-            this.style.transform = '';
-            this.style.boxShadow = '0 2px 5px rgba(229, 57, 53, 0.3)';
-        });
-        
-        downloadBtn.addEventListener('click', function() {
-            const link = document.createElement('a');
-            link.href = image.src;
-            link.download = image.name || 'download.jpg';
-            link.click();
-        });
-        
-        // 将元素添加到预览容器
-        previewContainer.appendChild(titleBar);
-        previewContainer.appendChild(imageContainer);
-        previewContainer.appendChild(infoContainer);
-        previewContainer.appendChild(downloadBtn);
-        
-        // 将预览容器添加到模态框
-        modal.appendChild(previewContainer);
-        
-        // 点击模态框背景关闭
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                document.body.removeChild(modal);
+        // Close on overlay click
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                closePreview();
             }
         });
         
-        // 添加模态框到body
-        document.body.appendChild(modal);
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePreview();
+            }
+        }, { once: true });
+        
+        // Prevent body scrolling
+        document.body.classList.add('no-scroll');
+        
+        // Assemble preview
+        container.appendChild(previewImg);
+        overlay.appendChild(closeBtn);
+        overlay.appendChild(container);
+        document.body.appendChild(overlay);
     }
-
-    // 修改删除图片的处理
+    
+    // Delete selected images
+    deleteSelectedBtn.addEventListener('click', function() {
+        const selectedItems = Array.from(
+            document.querySelectorAll('.image-item')
+        ).filter(item => 
+            item.querySelector('.image-checkbox').checked
+        );
+        
+        if (selectedItems.length === 0) {
+            showToast('No images selected', 'warning');
+            return;
+        }
+        
+        // Remove each selected image
+        selectedItems.forEach(item => {
+            const index = parseInt(item.dataset.index);
+            const file = uploadedImages[index];
+            removeImage(item, file);
+        });
+        
+        // Reset select all state
+        isSelectAll = false;
+        selectAllBtn.innerHTML = '<i class="material-icons">select_all</i> Select All';
+        
+        showToast(`${selectedItems.length} images deleted`, 'success');
+        
+        // Hide delete button
+        deleteSelectedBtn.classList.add('hidden');
+    });
+    
+    // Remove image function
     function removeImage(imageItem, file) {
+        const index = parseInt(imageItem.dataset.index);
+        
+        // Add to deleted images map
         const hash = getFileHash(file);
         deletedImages.set(hash, {
             file: file,
-            timestamp: new Date().getTime()
+            timestamp: Date.now()
         });
         
-        const index = parseInt(imageItem.dataset.index);
-        if (index >= 0 && index < uploadedImages.length) {
-            uploadedImages.splice(index, 1);
-            
-            // 更新剩余图片的索引
-            const remainingItems = document.querySelectorAll('.image-item');
-            remainingItems.forEach((item, i) => {
-                item.dataset.index = i;
-            });
-        }
+        // Remove from array
+        uploadedImages.splice(index, 1);
         
-        imageList.removeChild(imageItem);
+        // Remove from DOM
+        imageItem.remove();
+        
+        // Create recover button
+        const recoverButton = createRecoverButton(file);
+        imageList.appendChild(recoverButton);
+        
+        // Update indices of remaining items
+        document.querySelectorAll('.image-item').forEach((item, i) => {
+            item.dataset.index = i;
+        });
+        
+        // Update button states
         updateButtonState();
-        updateDeleteButtonState();
-        showToast('图片已删除，可以重新上传来恢复', 'info');
+        
+        // Show toast
+        showToast('Image removed. Click Recover to undo.', 'info');
     }
+    
+    // Generate PDF button click handler
+    convertBtn.addEventListener('click', generatePDF);
 }); 
