@@ -1,19 +1,17 @@
-Write-Host "Configuring Git..." -ForegroundColor Green
+# Simple script to push to GitHub
+Write-Host "Configuring Git..."
 
-$name = Read-Host "Enter your name for Git commit"
-$email = Read-Host "Enter your email for Git commit"
+# Get user input for commit message
+$commitMessage = Read-Host "Enter commit message"
 
-git config --global user.name $name
-git config --global user.email $email
-
-Write-Host "Adding all changes..." -ForegroundColor Green
+Write-Host "Adding all changes..."
 git add .
 
-$message = Read-Host "Enter commit message"
-git commit -m $message
+Write-Host "Committing changes..."
+git commit -m "$commitMessage"
 
-Write-Host "Pushing to GitHub..." -ForegroundColor Green
-git push
+Write-Host "Pushing to GitHub..."
+git push origin main
 
-Write-Host "Done! Press any key to exit" -ForegroundColor Green
-$null = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") 
+Write-Host "Done! Press any key to exit"
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") 
