@@ -1,0 +1,398 @@
+/* 移动端适配样式 */
+
+/* 确保基本字符编码正确 */
+@charset "UTF-8";
+
+/* 平板和手机设备 */
+@media (max-width: 768px) {
+    /* 容器样式优化 */
+    .container {
+        padding: 20px;
+        margin: 10px;
+        width: auto;
+    }
+    
+    body {
+        padding: 10px;
+        background-color: #f7f9f8;
+    }
+    
+    /* 上传区域优化 */
+    .upload-area {
+        padding: 30px 15px;
+        border-color: #c8e6c9;
+        background-color: #f1f8e9;
+    }
+    
+    .upload-icon .material-icons {
+        font-size: 48px;
+        color: #4caf50;
+    }
+    
+    /* 转换选项区域 */
+    .options-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    /* 静态选项样式 */
+    .static-option {
+        padding: 8px 12px;
+        background-color: #f1f8e9;
+        border-color: #c8e6c9;
+    }
+    
+    .format-badge {
+        padding: 3px 10px;
+        font-size: 0.9rem;
+        background-color: #4caf50;
+        color: white;
+    }
+    
+    /* 按钮区域优化 */
+    .controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .controls button {
+        flex: none;
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 8px;
+        max-width: none;
+    }
+    
+    .download-options {
+        flex-direction: column;
+        gap: 10px;
+        background-color: #f1f8e9;
+        border-left-color: #4caf50;
+    }
+    
+    .download-options button {
+        width: 100%;
+        max-width: none;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        color: white;
+    }
+    
+    /* 标题优化 */
+    h1 {
+        font-size: 1.8rem;
+        color: #2e7d32;
+    }
+    
+    h1 i {
+        color: #4caf50;
+    }
+    
+    /* PDF预览区域优化 */
+    .pdf-info {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .pdf-info-left {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .page-thumbnail {
+        min-width: 100px;
+        max-width: 100px;
+    }
+    
+    .page-thumbnail img {
+        height: 140px;
+    }
+    
+    /* 结果区域优化 */
+    .result-area {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+    
+    .result-item img {
+        height: 160px;
+    }
+    
+    /* 使用说明优化 */
+    .instructions {
+        padding: 15px;
+        background-color: #f1f8e9;
+        border-left-color: #4caf50;
+        color: #424242;
+    }
+    
+    .instructions h3 {
+        font-size: 1.2rem;
+        color: #2e7d32;
+    }
+    
+    .instructions h3 i {
+        color: #4caf50;
+    }
+    
+    .instructions li {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        color: #424242;
+    }
+}
+
+/* 小屏幕手机设备 */
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+        background-color: #f7f9f8;
+    }
+    
+    .container {
+        padding: 15px;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: #ffffff;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        color: #2e7d32;
+    }
+    
+    h1::after {
+        width: 60px;
+        background: linear-gradient(90deg, #4caf50, #2e7d32);
+    }
+    
+    .upload-area {
+        padding: 20px 10px;
+        margin-bottom: 15px;
+        border-color: #c8e6c9;
+        background-color: #f1f8e9;
+    }
+    
+    .upload-icon .material-icons {
+        font-size: 48px;
+        color: #4caf50;
+    }
+    
+    .upload-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        color: white;
+    }
+    
+    .pdf-preview, .conversion-options, .converting-status {
+        padding: 15px;
+        margin: 15px 0;
+        background-color: #ffffff;
+    }
+    
+    .pdf-details h4 {
+        font-size: 1rem;
+        color: #424242;
+    }
+    
+    .pdf-details p {
+        font-size: 0.85rem;
+        color: #757575;
+    }
+    
+    .pdf-pages {
+        gap: 10px;
+    }
+    
+    .page-thumbnail {
+        min-width: 90px;
+        max-width: 90px;
+    }
+    
+    .page-thumbnail img {
+        height: 120px;
+    }
+    
+    .option-group label {
+        font-size: 0.9rem;
+        color: #2e7d32;
+    }
+    
+    .static-option {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+        background-color: #f1f8e9;
+        border-color: #c8e6c9;
+        color: #424242;
+    }
+    
+    .static-option small {
+        font-size: 0.75rem;
+        color: #757575;
+    }
+    
+    .format-badge {
+        padding: 2px 8px;
+        font-size: 0.85rem;
+        background-color: #4caf50;
+        color: white;
+    }
+    
+    .option-group select, 
+    .option-group input[type="text"] {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        background-color: #f1f8e9;
+        border-color: #c8e6c9;
+        color: #424242;
+    }
+    
+    .result-area {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+    }
+    
+    .result-item img {
+        height: 140px;
+    }
+    
+    .page-info {
+        font-size: 0.8rem;
+        padding: 8px;
+        background-color: rgba(46, 125, 50, 0.8);
+        color: white;
+    }
+    
+    .controls button,
+    .download-options button {
+        font-size: 0.9rem;
+        padding: 10px;
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+        color: white;
+    }
+    
+    .instructions ul {
+        padding-left: 20px;
+    }
+    
+    .instructions li {
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+        color: #424242;
+    }
+    
+    .footer {
+        margin-top: 20px;
+        padding-top: 15px;
+        font-size: 0.8rem;
+        color: #757575;
+        border-top-color: #e0e0e0;
+    }
+    
+    .toast {
+        min-width: auto;
+        max-width: calc(100vw - 40px);
+        font-size: 0.9rem;
+        background-color: #ffffff;
+        color: #333;
+    }
+    
+    .preview-controls {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    
+    .preview-actions {
+        justify-content: space-between;
+    }
+    
+    .preview-btn {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        background-color: #f1f8e9;
+        color: #2e7d32;
+        border-color: #c8e6c9;
+    }
+}
+
+/* 添加针对转换状态的移动端样式 */
+@media screen and (max-width: 768px) {
+    .converting-status {
+        padding: 20px 15px;
+        margin: 15px 0;
+        background-color: #ffffff;
+        border-left-color: #4caf50;
+    }
+    
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border-width: 4px;
+        margin-bottom: 15px;
+        border-color: rgba(76, 175, 80, 0.3);
+        border-top-color: #4caf50;
+    }
+    
+    .status-text {
+        font-size: 1rem;
+        color: #2e7d32;
+    }
+    
+    .page-counter {
+        font-size: 0.8rem;
+        color: #757575;
+    }
+    
+    .progress-container {
+        max-width: 100%;
+        background-color: #e8f5e9;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, #4caf50, #2e7d32);
+    }
+    
+    .conversion-note {
+        font-size: 0.8rem;
+        color: #757575;
+    }
+    
+    /* Material icons sizing for mobile */
+    .spinner .material-icons {
+        font-size: 28px !important;
+        line-height: 50px !important;
+        color: #4caf50;
+    }
+}
+
+/* 确保较小屏幕上的动画不会过于占据空间 */
+@media screen and (max-width: 480px) {
+    .converting-status {
+        padding: 15px 10px;
+    }
+    
+    .section-title.pulse-effect {
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.03);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    .progress-container {
+        height: 8px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+} 

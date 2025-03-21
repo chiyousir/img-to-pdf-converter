@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vvChange智能转换工具 - PDF转图片</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="fonts/material-icons.css">
+    
+    <!-- 预先加载必要的库 -->
+    <script src="libs/pdf.js"></script>
+    <script src="libs/jszip.min.js"></script>
+    <style>
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 100;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .nav-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0078ff;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 5px 10px;
+            transition: color 0.3s;
+        }
+        
+        .nav-link.active {
+            color: #0078ff;
+            border-bottom: 2px solid #0078ff;
+        }
+        
+        .nav-link:hover {
+            color: #0078ff;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-bar {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .nav-logo {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="../index.html" class="nav-logo">VVChange - PDF转图片</a>
+        <div class="nav-links">
+            <a href="../index.html" class="nav-link">主页</a>
+            <a href="../index.html#tools-section" class="nav-link">工具转换</a>
+        </div>
+    </div>
+    <div class="container">
+        <h1> vvChange-PDF转图片</h1>
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">
+                <i class="material-icons">cloud_upload</i>
+            </div>
+            <p>拖放PDF文件到这里 或 点击上传</p>
+            <label for="fileInput" class="upload-btn">
+                <i class="material-icons">file_upload</i>
+                选择PDF文件
+            </label>
+            <input type="file" id="fileInput" accept=".pdf" hidden>
+        </div>
+        
+        <div class="pdf-preview" id="pdfPreview">
+            <!-- PDF信息将在这里显示 -->
+        </div>
+        
+        <div class="conversion-options" id="conversionOptions" style="display: none;">
+            <h3><i class="material-icons">settings</i> 转换设置</h3>
+            <div class="options-grid">
+                <div class="option-group">
+                    <label>图片格式:</label>
+                    <div class="static-option">
+                        <span class="format-badge">JPG</span>
+                        <small>最佳适用于照片和复杂图像</small>
+                    </div>
+                    <input type="hidden" id="imageFormat" value="jpg">
+                </div>
+                
+                <div class="option-group">
+                    <label>图片质量:</label>
+                    <div class="static-option">
+                        <div class="quality-indicator">
+                            <div class="quality-bar"></div>
+                            <span>原图质量</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="imageQuality" value="100">
+                </div>
+                
+                <div class="option-group">
+                    <label>分辨率:</label>
+                    <div class="static-option">
+                        <span class="dpi-value">300 DPI</span>
+                        <small>高质量打印级别</small>
+                    </div>
+                    <input type="hidden" id="dpi" value="300">
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls" style="display: none;">
+            <button id="convertBtn" disabled>
+                <i class="material-icons">image</i>
+                转换为图片
+            </button>
+            <button id="clearBtn" disabled>
+                <i class="material-icons">delete_sweep</i>
+                清除
+            </button>
+        </div>
+        
+        <div class="result-area" id="resultArea">
+            <!-- 转换结果将在这里显示 -->
+        </div>
+        
+        <div class="download-options" id="downloadOptions" style="display: none;">
+            <button id="downloadAllBtn">
+                <i class="material-icons">download</i>
+                下载所有图片(.zip)
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="material-icons">help_outline</i> 使用说明</h3>
+            <ul>
+                <li>上传单个PDF文件，最大支持200MB</li>
+                <li>上传后将自动以原图质量转换为JPG格式</li>
+                <li>系统会自动转换PDF的所有页面，并显示实时进度</li>
+                <li>支持下载所有图片</li>
+                <li>如需重新上传文件，点击清除按钮</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>©2025-vvChange 智能转换工具 | 高效便捷的文件处理解决方案</p>
+            <p>有疑问请发送邮件至：chiyou1216@gmail.com</p>
+        </div>
+    </div>
+    
+    <!-- Toast消息组件 -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- 确保PDF.js正确加载 -->
+    <script>
+        // 检查PDF.js是否已加载
+        if (typeof pdfjsLib === 'undefined') {
+            console.log('PDF.js未正确加载，尝试加载备用库');
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.min.js';
+            script.onload = function() {
+                console.log('备用PDF.js已加载');
+                // 设置worker路径
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.worker.min.js';
+            };
+            script.onerror = function() {
+                console.error('无法加载PDF.js');
+                showToast('无法加载PDF处理组件，请检查网络连接后刷新页面', 'error');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html> 
