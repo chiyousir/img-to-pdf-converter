@@ -1,0 +1,423 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: #2c3e50;
+}
+
+.upload-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 2px dashed #ddd;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.filepond--root {
+    margin-bottom: 20px;
+}
+
+.status-section {
+    margin-top: -10px;
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 0 0 8px 8px;
+    background-color: #f8f9fa;
+    display: none;
+    border: 1px solid #e9ecef;
+    border-top: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.status-section.show {
+    display: block;
+}
+
+.progress-bar {
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #4CAF50;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+#downloadSection{
+    margin-top:0px;
+}
+
+.download-section {
+    margin-top: -10px;
+    margin-bottom: 30px;
+    text-align: center;
+    display: none;
+    padding: 25px;
+    background-color: #f7fef7;
+    border-radius: 0 0 8px 8px;
+    border: 1px solid #d7efd7;
+    border-top: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.download-section.show {
+    display: block;
+}
+
+.download-section h3 {
+    color: #4CAF50;
+    margin-top: 0;
+}
+
+.small-note {
+    font-size: 14px;
+    color: #666;
+    margin-top: -5px;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 30px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    margin-top: 15px;
+}
+
+.btn:hover {
+    background-color: #45a049;
+}
+
+.error-message {
+    color: #dc3545;
+    margin-top: 10px;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* 隐藏 "Powered by PQINA" 文字 */
+.filepond--credits {
+    display: none !important;
+}
+
+/* 导航栏样式 */
+.navbar {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 20px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: #0074d9;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+}
+
+.nav-link {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+.nav-link.active {
+    color: #0074d9;
+}
+
+/* 页面容器 */
+.page-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.content-container {
+    width: 100%;
+    max-width: 900px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+/* 主标题 */
+.main-title {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.main-title h1 {
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+.underline {
+    width: 100px;
+    height: 4px;
+    background-color: #4CAF50;
+    margin: 0 auto;
+}
+
+/* 上传卡片 */
+.upload-card {
+    border: 2px dashed #4CAF50;
+    border-radius: 8px 8px 8px 8px;
+    padding: 40px 30px;
+    text-align: center;
+    margin-bottom: 30px; /* 默认有底部间距 */
+    background-color: #f9fcf7;
+    transition: all 0.3s ease;
+}
+
+.upload-card:hover {
+    background-color: #f0f9f0;
+    border-color: #45a049;
+}
+
+.upload-card.with-status {
+    margin-bottom: 0;
+    border-radius: 8px 8px 0 0;
+    border-bottom-color: #e9ecef;
+}
+
+.upload-icon {
+    font-size: 60px;
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+.upload-text {
+    font-size: 18px;
+    margin-bottom: 0px;
+    color: #555;
+}
+
+.select-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: inline-block;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.select-button:hover {
+    background-color: #45a049;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.select-button:active {
+    transform: translateY(1px);
+}
+
+/* 说明部分 */
+.instructions-section {
+    background-color: #f7f9fc;
+    border-left: 4px solid #4CAF50;
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 30px;
+}
+
+.instructions-icon {
+    color: #4CAF50;
+    font-size: 24px;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+.instructions-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.instructions-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.instructions-list li {
+    margin-bottom: 10px;
+    padding-left: 30px;
+    position: relative;
+}
+
+.instructions-list li i {
+    color: #4CAF50;
+    position: absolute;
+    left: 0;
+    top: 3px;
+}
+
+/* 状态部分 */
+#statusSection{
+    margin-top:0px;
+}
+
+.status-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 0 0 8px 8px;
+    background-color: #f8f9fa;
+    display: none;
+    border: 1px solid #e9ecef;
+    border-top: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.status-section.show {
+    display: block;
+}
+
+.progress-bar {
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #4CAF50;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* 错误信息 */
+.error-message {
+    color: #dc3545;
+    padding: 10px 15px;
+    background-color: #fff8f8;
+    border-left: 4px solid #dc3545;
+    margin-top: 20px;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
+/* 页脚 */
+.footer {
+    background-color: #fff;
+    border-top: 1px solid #eee;
+    padding: 20px 0;
+    color: #6c757d;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-content p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        padding: 10px;
+    }
+    
+    .nav-links {
+        margin-top: 10px;
+    }
+    
+    .content-container {
+        padding: 20px;
+    }
+    
+    .upload-card {
+        padding: 20px;
+    }
+}
+
+/* 修正Font Awesome字体路径 */
+@font-face {
+    font-family: 'Font Awesome 5 Free';
+    font-style: normal;
+    font-weight: 900;
+    font-display: block;
+    src: url("../lib/font-awesome/webfonts/fa-solid-900.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: 'Font Awesome 5 Free';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url("../lib/font-awesome/webfonts/fa-regular-400.woff2") format("woff2");
+}

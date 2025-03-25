@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vvChange Smart Conversion Tool - PDF to Image</title>
+    <meta name="description" content="Free online PDF to image converter, converting PDF documents to high-quality JPG images. Supports single or multi-page PDFs, adjustable output quality, no software download required.">
+    <meta name="keywords" content="PDF to Image,PDF to JPG,PDF to PNG,Online converter,Free PDF converter,PDF export images,PDF processing,Online tools,vvChange,Document conversion,Batch conversion">
+    <meta name="author" content="vvChange">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media Sharing -->
+    <meta property="og:title" content="vvChange - Free Online PDF to Image Converter">
+    <meta property="og:description" content="Convert PDF documents to high-quality images quickly, supports JPG, PNG formats, simple and efficient operation.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.vvChange.top/pdf-img/">
+    <meta property="og:site_name" content="vvChange">
+    
+    <!-- Canonical Link -->
+    <link rel="canonical" href="https://www.vvChange.top/pdf-img/">
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="fonts/material-icons.css">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "vvChange PDF to Image Converter",
+      "applicationCategory": "WebApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Free online PDF to Image converter, transforms PDF documents into high-quality JPG, PNG images, supports multi-page processing, completely online operation."
+    }
+    </script>
+    
+    <!-- Preload necessary libraries -->
+    <script src="libs/pdf.js"></script>
+    <script src="libs/jszip.min.js"></script>
+    <style>
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 100;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .nav-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0078ff;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 5px 10px;
+            transition: color 0.3s;
+        }
+        
+        .nav-link.active {
+            color: #0078ff;
+            border-bottom: 2px solid #0078ff;
+        }
+        
+        .nav-link:hover {
+            color: #0078ff;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-bar {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .nav-logo {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="../index.html" class="nav-logo">vvChange - PDF to Image</a>
+        <div class="nav-links">
+            <a href="../index.html" class="nav-link">Home</a>
+            <a href="../index.html#tools-section" class="nav-link">Tools</a>
+        </div>
+    </div>
+    <div class="container">
+        <h1>vvChange - PDF to Image</h1>
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">
+                <i class="material-icons">cloud_upload</i>
+            </div>
+            <p>Click here upload PDF file</p>
+            <label for="fileInput" class="upload-btn">
+                <i class="material-icons">file_upload</i>
+                Select PDF file
+            </label>
+            <input type="file" id="fileInput" accept=".pdf" hidden>
+        </div>
+        
+        <div class="pdf-preview" id="pdfPreview">
+            <!-- PDF information will be displayed here -->
+        </div>
+        
+        <div class="conversion-options" id="conversionOptions" style="display: none;">
+            <h3><i class="material-icons">settings</i> Conversion Settings</h3>
+            <div class="options-grid">
+                <div class="option-group">
+                    <label>Image Format:</label>
+                    <div class="static-option">
+                        <span class="format-badge">JPG</span>
+                        <small>Best for photos and complex images</small>
+                    </div>
+                    <input type="hidden" id="imageFormat" value="jpg">
+                </div>
+                
+                <div class="option-group">
+                    <label>Image Quality:</label>
+                    <div class="static-option">
+                        <div class="quality-indicator">
+                            <div class="quality-bar"></div>
+                            <span>Original Quality</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="imageQuality" value="100">
+                </div>
+                
+                <div class="option-group">
+                    <label>Resolution:</label>
+                    <div class="static-option">
+                        <span class="dpi-value">300 DPI</span>
+                        <small>High quality print level</small>
+                    </div>
+                    <input type="hidden" id="dpi" value="300">
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls" style="display: none;">
+            <button id="convertBtn" disabled>
+                <i class="material-icons">image</i>
+                Convert to Images
+            </button>
+            <button id="clearBtn" disabled>
+                <i class="material-icons">delete_sweep</i>
+                Clear
+            </button>
+        </div>
+        
+        <div class="result-area" id="resultArea">
+            <!-- Conversion results will be displayed here -->
+        </div>
+        
+        <div class="download-options" id="downloadOptions" style="display: none;">
+            <button id="downloadAllBtn">
+                <i class="material-icons">download</i>
+                Download All Images (.zip)
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="material-icons">help_outline</i> Instructions</h3>
+            <ul>
+                <li>Upload a single PDF file, maximum 200MB supported</li>
+                <li>After upload, file will automatically convert to JPG at original quality</li>
+                <li>The system will convert all pages of the PDF and show real-time progress</li>
+                <li>Download all images as a zip file</li>
+                <li>To upload a new file, click the Clear button</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>©2025-vvChange Smart Conversion Tool | Efficient and convenient file processing solution</p>
+            <p>For questions, please email: chiyou1216@gmail.com</p>
+        </div>
+    </div>
+    
+    <!-- Toast message component -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- Ensure PDF.js is loaded correctly -->
+    <script>
+        // Check if PDF.js is loaded
+        if (typeof pdfjsLib === 'undefined') {
+            console.log('PDF.js not loaded correctly, trying to load backup library');
+            const script = document.createElement('script');
+            script.src = 'libs/pdf.js';
+            script.onload = function() {
+                console.log('Backup PDF.js loaded');
+                // Set worker path
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'libs/pdf.worker.min.js';
+            };
+            script.onerror = function() {
+                console.error('Cannot load PDF.js');
+                showToast('Unable to load PDF processing component, please check your network connection and refresh the page', 'error');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html> 

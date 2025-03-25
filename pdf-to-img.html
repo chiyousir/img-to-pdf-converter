@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Image - VVChange</title>
+    <meta name="description" content="VVChange's PDF to Image tool allows you to easily convert PDF documents to high-quality JPG, PNG and other image formats, supports multi-page PDF processing, completely free, no software installation required.">
+    <meta name="keywords" content="PDF to Image,PDF to JPG,PDF to PNG,PDF document processing,online conversion tool,free PDF tool,VVChange,file format conversion,high-quality image export">
+    <meta name="author" content="VVChange">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media Sharing -->
+    <meta property="og:title" content="PDF to Image - VVChange - High Quality Online Conversion">
+    <meta property="og:description" content="Free online conversion of PDF documents to high-quality images, supports JPG, PNG formats, multi-page processing, no software installation required, convenient and efficient.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.vvchange.top/pdf-to-img.html">
+    <meta property="og:site_name" content="VVChange">
+    
+    <!-- Canonical Link -->
+    <link rel="canonical" href="https://www.vvchange.top/pdf-to-img.html">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "VVChange PDF to Image Converter",
+        "applicationCategory": "WebApplication",
+        "operatingSystem": "All",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "description": "Free online tool to convert PDF documents to high-quality images, supports JPG, PNG formats, multi-page processing, no software installation required."
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>VVChange - PDF to Image</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="tools.html">Tools</a></li>
+                </ul>
+            </nav>
+            <div class="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="tool-header">
+            <div class="container">
+                <h2>PDF to Image Converter</h2>
+                <p>Convert PDF documents to high-quality images with ease</p>
+            </div>
+        </section>
+
+        <section class="tool-content">
+            <div class="container">
+                <div class="upload-area">
+                    <div class="upload-icon">
+                        <img src="images/upload.svg" alt="Upload">
+                    </div>
+                    <h3>Upload PDF File</h3>
+                    <p>Click or drag and drop your PDF file here</p>
+                    <input type="file" id="fileInput" accept=".pdf" hidden>
+                    <button class="upload-btn">Select File</button>
+                </div>
+
+                <div class="settings">
+                    <h3>Conversion Settings</h3>
+                    <div class="setting-group">
+                        <label>Output Format:</label>
+                        <select id="outputFormat">
+                            <option value="jpg">JPG</option>
+                            <option value="png">PNG</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label>Image Quality:</label>
+                        <input type="range" id="quality" min="1" max="100" value="90">
+                        <span id="qualityValue">90%</span>
+                    </div>
+                </div>
+
+                <div class="convert-actions">
+                    <button id="convertBtn" class="primary-btn" disabled>Convert to Images</button>
+                    <button id="clearBtn" class="secondary-btn" disabled>Clear</button>
+                </div>
+
+                <div id="result" class="result-area" style="display: none;">
+                    <!-- Conversion results will be displayed here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 VVChange. All rights reserved</p>
+            <p>For questions, please email: chiyou1216@gmail.com</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

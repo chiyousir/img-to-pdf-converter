@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to PDF - VVChange</title>
+    <meta name="description" content="VVChange's Image to PDF tool allows you to easily convert JPG, PNG and other image formats to PDF documents, supports batch processing, completely free, no software installation required.">
+    <meta name="keywords" content="Image to PDF,JPG to PDF,PNG to PDF,image processing,online conversion tool,free PDF tool,VVChange,file format conversion,high-quality PDF export">
+    <meta name="author" content="VVChange">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media Sharing -->
+    <meta property="og:title" content="Image to PDF - VVChange - High Quality Online Conversion">
+    <meta property="og:description" content="Free online conversion of images to high-quality PDF documents, supports JPG, PNG formats, batch processing, no software installation required, convenient and efficient.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.vvchange.top/img-to-pdf.html">
+    <meta property="og:site_name" content="VVChange">
+    
+    <!-- Canonical Link -->
+    <link rel="canonical" href="https://www.vvchange.top/img-to-pdf.html">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "VVChange Image to PDF Converter",
+        "applicationCategory": "WebApplication",
+        "operatingSystem": "All",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "description": "Free online tool to convert images to high-quality PDF documents, supports JPG, PNG formats, batch processing, no software installation required."
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>VVChange - Image to PDF</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="tools.html">Tools</a></li>
+                </ul>
+            </nav>
+            <div class="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="tool-header">
+            <div class="container">
+                <h2>Image to PDF Converter</h2>
+                <p>Convert images to PDF documents with ease</p>
+            </div>
+        </section>
+
+        <section class="tool-content">
+            <div class="container">
+                <div class="upload-area">
+                    <div class="upload-icon">
+                        <img src="images/upload.svg" alt="Upload">
+                    </div>
+                    <h3>Upload Images</h3>
+                    <p>Click or drag and drop your images here</p>
+                    <input type="file" id="fileInput" accept="image/*" multiple hidden>
+                    <button class="upload-btn">Select Files</button>
+                </div>
+
+                <div class="settings">
+                    <h3>Conversion Settings</h3>
+                    <div class="setting-group">
+                        <label>Page Size:</label>
+                        <select id="pageSize">
+                            <option value="a4">A4</option>
+                            <option value="letter">Letter</option>
+                            <option value="legal">Legal</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label>Page Orientation:</label>
+                        <select id="orientation">
+                            <option value="portrait">Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label>Image Quality:</label>
+                        <input type="range" id="quality" min="1" max="100" value="90">
+                        <span id="qualityValue">90%</span>
+                    </div>
+                </div>
+
+                <div class="convert-actions">
+                    <button id="convertBtn" class="primary-btn" disabled>Convert to PDF</button>
+                    <button id="clearBtn" class="secondary-btn" disabled>Clear</button>
+                </div>
+
+                <div id="result" class="result-area" style="display: none;">
+                    <!-- Conversion results will be displayed here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 VVChange. All rights reserved</p>
+            <p>For questions, please email: chiyou1216@gmail.com</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

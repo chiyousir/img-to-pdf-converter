@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vvChange Smart Converter - Image to PDF Online Tool</title>
+    <meta name="description" content="vvChange online image to PDF converter, free conversion of JPG, PNG and other image formats to PDF files. Supports batch conversion, image rotation, sorting and preview, no software installation required.">
+    <meta name="keywords" content="image to PDF,JPG to PDF,PNG to PDF,online converter,free PDF conversion,image merge PDF,batch conversion,online PDF tool,vvChange,image processing,file conversion">
+    <meta name="author" content="vvChange">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media Sharing -->
+    <meta property="og:title" content="vvChange - Free Online Image to PDF Converter">
+    <meta property="og:description" content="Quickly merge and convert multiple images to PDF files, with support for rotation, sorting and preview, simple and efficient operation.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.vvChange.top/img-pdf/">
+    
+    <!-- Canonical Link -->
+    <link rel="canonical" href="https://www.vvChange.top/img-pdf/">
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="fonts/material-icons.css">
+    
+    <!-- Preload Essential Libraries -->
+    <script src="libs/jspdf.umd.min.js"></script>
+    <script src="libs/Sortable.min.js"></script>
+    <style>
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 100;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .nav-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0078ff;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 5px 10px;
+            transition: color 0.3s;
+        }
+        
+        .nav-link.active {
+            color: #0078ff;
+            border-bottom: 2px solid #0078ff;
+        }
+        
+        .nav-link:hover {
+            color: #0078ff;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-bar {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .nav-logo {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="../index.html" class="nav-logo">vvChange - Image to PDF</a>
+        <div class="nav-links">
+            <a href="../index.html" class="nav-link">Home</a>
+            <a href="../index.html#tools-section" class="nav-link">Tools</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>vvChange - Image to PDF</h1>
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">
+                <i class="material-icons">cloud_upload</i>
+            </div>
+            <p>Click here to upload images</p>
+            <label for="fileInput" class="upload-btn">
+                <i class="material-icons">add_photo_alternate</i>
+                Select Images
+            </label>
+            <input type="file" id="fileInput" accept="image/*" multiple hidden>
+        </div>
+        
+        <div class="image-list" id="imageList">
+            <!-- Uploaded image previews will be displayed here -->
+        </div>
+        
+        <div class="controls">
+            <button id="selectAllBtn" class="hidden">
+                <i class="material-icons">select_all</i>
+                Select All
+            </button>
+            <button id="deleteSelectedBtn" class="hidden">
+                <i class="material-icons">delete</i>
+                Delete Selected
+            </button>
+            <button id="convertBtn" disabled>
+                <i class="material-icons">picture_as_pdf</i>
+                Generate PDF
+            </button>
+            <button id="clearBtn" disabled>
+                <i class="material-icons">delete_sweep</i>
+                Clear All
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="material-icons">help_outline</i> Instructions</h3>
+            <ul>
+                <li>Supports uploading multiple images</li>
+                <li>Click on an image to preview</li>
+                <li>Supports image rotation</li>
+                <li>Drag and drop images to reorder</li>
+                <li>Select images to merge into a PDF file</li>
+                <li>If no images are selected, all images will be merged into one PDF file</li>
+                <li>Generated PDF will be downloaded automatically</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>©2025-vvChange Smart Converter | Efficient File Processing Solution</p>
+            <p>For inquiries, please email: chiyou1216@gmail.com</p>
+        </div>
+    </div>
+    
+    <!-- Use backup CDN as fallback -->
+    <script>
+        // Check if jsPDF is loaded
+        if (typeof window.jspdf === 'undefined') {
+            console.log('jsPDF not loaded correctly, attempting to load backup library');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
+            script.onload = function() {
+                console.log('Backup jsPDF loaded');
+            };
+            script.onerror = function() {
+                console.error('Unable to load jsPDF');
+                alert('Unable to load PDF generation component, please check your network connection and refresh the page');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html> 

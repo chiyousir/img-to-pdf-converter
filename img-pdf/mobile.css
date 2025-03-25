@@ -1,0 +1,202 @@
+/* Mobile adaptation styles */
+
+/* Ensure correct basic character encoding */
+@charset "UTF-8";
+
+/* Tablet and mobile devices */
+@media (max-width: 768px) {
+    /* Mobile image item layout */
+    .image-item {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        margin-bottom: 5px;
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .image-item img {
+        width: 100%;
+        object-fit: cover;
+        flex: 1;
+    }
+    
+    /* Rotation button style optimization */
+    .rotate-btn {
+        min-width: 45px;
+        height: 28px;
+        font-size: 14px;
+        background: rgba(0, 0, 0, 0.05);
+        color: #666666;
+    }
+    
+    /* Other mobile styles */
+    .container {
+        padding: 20px;
+        margin: 10px;
+        width: auto;
+        background: #ffffff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    body {
+        padding: 10px;
+        background: #f7f9f8;
+        color: #333333;
+    }
+    
+    .upload-area {
+        padding: 30px 15px;
+        background-color: #ffebee;
+        border: 2px dashed #ffcdd2;
+    }
+    
+    .controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .controls button {
+        flex: none;
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+        color: #d32f2f;
+    }
+    
+    .image-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .image-item img {
+        height: 120px;
+    }
+    
+    .instructions {
+        padding: 15px;
+        background: #ffebee;
+        border-left: 4px solid #e53935;
+        color: #333333;
+    }
+    
+    .instructions h3 {
+        font-size: 1.2rem;
+        color: #d32f2f;
+    }
+    
+    .instructions li {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        color: #333333;
+    }
+    
+    .upload-icon .material-icons {
+        color: #e53935;
+    }
+    
+    .static-option {
+        background: #fff;
+        border: 1px solid #ffcdd2;
+    }
+}
+
+/* Small screen mobile devices */
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+    }
+    
+    .container {
+        padding: 15px;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    
+    h1::after {
+        width: 60px;
+        background: linear-gradient(to right, #e53935, #f44336);
+    }
+    
+    .upload-area {
+        padding: 20px 10px;
+        margin-bottom: 15px;
+    }
+    
+    .upload-icon .material-icons {
+        font-size: 48px;
+    }
+    
+    .image-list {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .image-item img {
+        height: 100px;
+    }
+    
+    .rotate-btn {
+        min-width: 40px;
+        height: 26px;
+        font-size: 12px;
+        padding: 0 8px;
+    }
+    
+    .image-item .rotate-controls {
+        padding: 5px 0;
+        background: #f5f5f5;
+    }
+    
+    .image-item .remove-btn {
+        width: 24px;
+        height: 24px;
+        top: 5px;
+        right: 5px;
+        background: rgba(244, 67, 54, 0.85);
+    }
+    
+    .image-item .remove-btn .material-icons {
+        font-size: 16px;
+    }
+    
+    .upload-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        background: linear-gradient(to right, #e53935, #f44336);
+        color: white;
+        box-shadow: 0 4px 15px rgba(229, 57, 53, 0.3);
+    }
+    
+    .controls button {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+    
+    .instructions ul {
+        padding-left: 20px;
+    }
+    
+    .instructions li {
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+    }
+    
+    .footer {
+        margin-top: 20px;
+        padding-top: 15px;
+        font-size: 0.8rem;
+        color: #666666;
+    }
+} 

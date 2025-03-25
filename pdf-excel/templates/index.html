@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vvChange - PDF to Excel Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/font-awesome/css/all.min.css') }}">
+    <meta name="description" content="Free online PDF to excel converter, converting PDF documents to excel. Supports single or multi-page PDFs, adjustable output quality, no software download required.">
+    <meta name="keywords" content="PDF to excel,PDF to excel,PDF to excel,Online converter,Free PDF converter,PDF export excel,PDF processing,Online tools,vvChange,Document conversion,Batch conversion">
+    <meta name="author" content="vvChange">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media Sharing -->
+    <meta property="og:title" content="vvChange - Free Online PDF to excel Converter">
+    <meta property="og:description" content="Convert PDF documents to excel quickly, simple and efficient operation.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.vvChange.top/pdf-excel/">
+    <meta property="og:site_name" content="vvChange">
+    
+    <!-- Canonical Link -->
+    <link rel="canonical" href="https://www.vvChange.top/pdf-excel/">
+</head>
+<body>
+    <!-- Navigation bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="http://vvchange.top" class="logo">vvChange - PDF to Excel</a>
+            <div class="nav-links">
+                <a href="http://vvchange.top" class="nav-link active">Home</a>
+                <a href="http://vvchange.top#tools-section" class="nav-link">Tools</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="content-container">
+            <!-- Main title -->
+            <div class="main-title">
+                <h1>vvChange - PDF to Excel</h1>
+                <div class="underline"></div>
+            </div>
+
+            <!-- Upload section with cloud icon -->
+            <div class="upload-card">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <p class="upload-text">Click the button to upload a PDF file</p>
+                <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                    <input type="file" id="pdfFile" name="pdf" accept="application/pdf" style="display: none;" />
+                    <button type="button" class="select-button" id="selectButton">
+                        <i class="fas fa-upload"></i> Select PDF File
+                    </button>
+                </form>
+            </div>
+
+            <!-- Processing status -->
+            <div class="status-section" id="statusSection">
+                <h3>Processing Status</h3>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+                <p id="statusText">Preparing...</p>
+            </div>
+
+            <!-- Download section -->
+            <div class="download-section" id="downloadSection">
+                <h3>Conversion Complete!</h3>
+                <p>vvChange has successfully converted all tables in the PDF to an Excel file</p>
+                
+                <a href="#" id="downloadBtn" class="btn">Download Excel File</a>
+            </div>
+
+            <!-- Instructions section -->
+            <div class="instructions-section">
+                <div class="instructions-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3>Instructions</h3>
+                <ul class="instructions-list">
+                    <li><i class="fas fa-check"></i> Upload a single PDF file, maximum size 200MB</li>
+                    <li><i class="fas fa-check"></i> After upload, the file will be automatically converted to Excel format</li>
+                    <li><i class="fas fa-check"></i> Each page in a multi-page PDF will be converted to different worksheets in Excel</li>
+                    <li><i class="fas fa-check"></i> The system will convert all pages and show real-time progress</li>
+                    <li><i class="fas fa-check"></i> After completion, download the Excel file directly</li>
+                    <li><i class="fas fa-check"></i> To upload a new file, simply click the "Select PDF File" button</li>
+                </ul>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>©2025-vvChange Smart Conversion Tool | Efficient and convenient file processing solution</p>
+            <p>For questions, please email: chiyou1216@gmail.com</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

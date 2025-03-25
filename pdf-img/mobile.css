@@ -1,0 +1,213 @@
+/* Mobile Adaptation Styles */
+
+/* Ensure correct basic character encoding */
+@charset "UTF-8";
+
+/* Tablet and Mobile Devices */
+@media screen and (max-width: 768px) {
+    /* Container Style Optimization */
+    .container {
+        width: 100%;
+        padding: 10px;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    .content {
+        padding: 15px;
+    }
+
+    /* Upload Area Optimization */
+    .upload-area {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .upload-area .icon {
+        font-size: 40px;
+    }
+
+    .upload-area p {
+        font-size: 14px;
+    }
+
+    /* Conversion Options Area */
+    .options {
+        flex-direction: column;
+    }
+
+    /* Static Option Styles */
+    .option {
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    .option label {
+        font-size: 14px;
+    }
+
+    .option select,
+    .option input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    /* Button Area Optimization */
+    .button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .button {
+        width: 100%;
+        margin: 5px 0;
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    .primary-button,
+    .secondary-button {
+        width: 100%;
+    }
+
+    .primary-button {
+        margin-bottom: 10px;
+    }
+
+    .secondary-button {
+        margin-top: 10px;
+    }
+
+    /* Title Optimization */
+    h1 {
+        font-size: 24px;
+        margin: 15px 0;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    /* PDF Preview Area Optimization */
+    .pdf-preview {
+        max-height: 300px;
+        margin: 15px 0;
+    }
+
+    .pdf-preview canvas {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .preview-controls {
+        padding: 10px;
+    }
+
+    /* Results Area Optimization */
+    .results {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    /* Instructions Optimization */
+    .instructions {
+        padding: 15px;
+        margin: 10px 0;
+    }
+
+    .instructions h3 {
+        font-size: 18px;
+    }
+
+    .instructions p,
+    .instructions li {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .instructions ul,
+    .instructions ol {
+        padding-left: 20px;
+    }
+}
+
+/* Small Screen Mobile Devices */
+@media screen and (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+
+    .content {
+        padding: 10px;
+    }
+
+    .upload-area {
+        padding: 15px;
+    }
+
+    .upload-area .icon {
+        font-size: 32px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    .button {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .option label {
+        font-size: 13px;
+    }
+
+    .option select,
+    .option input[type="number"] {
+        padding: 6px;
+        font-size: 13px;
+    }
+
+    .instructions {
+        padding: 10px;
+    }
+
+    .instructions h3 {
+        font-size: 16px;
+    }
+
+    .instructions p,
+    .instructions li {
+        font-size: 13px;
+    }
+}
+
+/* Add mobile styles for conversion status */
+.status {
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 14px;
+    text-align: center;
+}
+
+.progress {
+    height: 20px;
+    margin: 10px 0;
+}
+
+.error-message {
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.success-message {
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 14px;
+} 
